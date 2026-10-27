@@ -6,7 +6,7 @@ import type { Movie } from '../types/movie';
 import { colors, fonts } from '../theme';
 import { AppText, Icon, Rating } from './ui';
 
-export function FeaturedMovie({ movie }: { movie: Movie }) {
+export function FeaturedMovie({ movie, personal = false }: { movie: Movie; personal?: boolean }) {
   const wide = useWindowDimensions().width >= 700;
   return (
     <Pressable
@@ -45,7 +45,9 @@ export function FeaturedMovie({ movie }: { movie: Movie }) {
       <View style={styles.heroTop}>
         <View style={styles.featuredTag}>
           <Icon name="sparkles-outline" color={colors.accent} size={14} />
-          <AppText style={styles.tagText}>In the spotlight</AppText>
+          <AppText style={styles.tagText}>
+            {personal ? 'Your next story' : 'In the spotlight'}
+          </AppText>
         </View>
         <Rating value={movie.rating} />
       </View>
@@ -75,8 +77,8 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     overflow: 'hidden',
     justifyContent: 'space-between',
-    marginTop: 24,
-    marginBottom: 32,
+    marginTop: 16,
+    marginBottom: 12,
   },
   heroTop: {
     padding: 18,

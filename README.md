@@ -5,12 +5,12 @@ A phone-first React Native app for discovering a film, reading its story, and ke
 Built with **Expo 58 · React Native 0.88 · React 19.3 · TypeScript · Expo Router · TanStack Query · AsyncStorage**.
 
 <p>
-  <img src="docs/screenshots/home.jpg" alt="Discover: featured film and popular movie collection" width="220" />
-  <img src="docs/screenshots/details.jpg" alt="Movie details with poster, rating, and save action" width="220" />
-  <img src="docs/screenshots/favourites.jpg" alt="Favourites saved on the device" width="220" />
+  <img src="docs/screenshots/discover-v2.jpg" alt="Discover with a personalised Surprise me action" width="220" />
+  <img src="docs/screenshots/filters.jpg" alt="Genre, rating, and watched filters on the movie collection" width="220" />
+  <img src="docs/screenshots/watchlist.jpg" alt="Watchlist with Planned and Watched tabs" width="220" />
 </p>
 
-[Watch the two-minute demo](docs/frame-demo.mp4) · [Validation record](docs/VALIDATION.md) · [Desktop screenshot](docs/screenshots/desktop.jpg)
+[Watch the original two-minute demo](docs/frame-demo.mp4) · [Validation record](docs/VALIDATION.md) · [Current desktop screenshot](docs/screenshots/desktop-v2.jpg)
 
 ## Run it
 
@@ -61,7 +61,12 @@ npx expo start --clear
 | Search | A 350 ms debounce, two-character minimum, and separate loading, no-results, and failure states |
 | Movie details | Navigation to poster, rating, overview, and a save action |
 | Favourites | A dedicated tab with immediate updates and device persistence |
+| Personalised discovery | “Surprise me” favours genres from saved favourites, skips watched films, and explains each pick |
+| Collection filters | Combine genre, a rating of 8+, and hide-watched filters, with a clear count of matching loaded films |
+| Watchlist and film diary | Separate Planned and Watched lists, watched dates, status badges, and an eight-second Undo after list removal |
 | Slow or lost network | Previously loaded content stays useful; retries and connectivity feedback explain what happens next |
+
+Discovery runs locally on the films already loaded. It needs no account, sends no preference profile to a recommendation service, and does not fetch more pages merely because a filter changes. With filters active, **Load more films** expands the selection explicitly. Favourites remain independent from viewing plans: loving a film and planning to watch it are separate actions.
 
 The [manual review checklist](docs/REVIEW_CHECKLIST.md) covers both the happy path and failure cases. Actual checks and their limits are recorded in [VALIDATION.md](docs/VALIDATION.md).
 
@@ -71,11 +76,13 @@ The [manual review checklist](docs/REVIEW_CHECKLIST.md) covers both the happy pa
 
 **Favourites belong to the device.** They are stored separately from the expiring query cache, so saving a movie does not depend on a successful network request or on the lifetime of a search result. A movie snapshot keeps a saved title useful when the device is offline. Writes are serialized so rapid taps cannot overwrite a later action. A failed save keeps the latest state in memory and offers a retry; a failed initial read blocks writes so an unreadable collection is not overwritten.
 
+**Watch history has its own durable store.** Planned and watched entries keep full movie snapshots under a separate AsyncStorage key, with their added and watched dates. The store validates restored records, serializes writes, and offers recovery without overwriting unreadable data. Undo restores the original entry and dates. Details can use watchlist snapshots even after the query cache expires.
+
 **Screen state stays local.** Search text, selected filters, and short-lived presentation state stay close to the screen that owns them. Provider adapters normalize external data into a shared movie model so the UI does not depend on a particular API response shape.
 
 **Requests are bounded and recoverable.** A 12-second timeout prevents an individual request from hanging indefinitely. Requests are paced, and transient failures get at most two automatic retries. Authentication/client errors, malformed responses, and cancellations are not automatically retried. Debouncing reduces unnecessary searches, cancellation prevents obsolete work from taking priority, and connectivity tracking informs TanStack Query when requests should pause or resume. Native builds use NetInfo; web uses browser connectivity events. Loading a first page, refreshing existing content, and fetching the next page are separate UI states.
 
-Offline support has a deliberate boundary: it can show data already loaded or saved on that device. A first launch without connectivity cannot create a catalog, unseen details require a connection, and poster images still depend on their local image cache. Favourites store metadata, not downloaded film media.
+Offline support has a deliberate boundary: it can show data already loaded or saved on that device. A first launch without connectivity cannot create a catalog, unseen details require a connection, and poster images still depend on their local image cache. Favourites and watchlists store metadata, not downloaded film media.
 
 ## Project layout
 
@@ -84,14 +91,15 @@ app/                    Expo Router screens and navigation
 src/api/                HTTP client, provider adapters, response normalization
 src/components/         Shared cards, featured movie, and UI states
 src/hooks/              Query hooks, pagination helpers, input debouncing
-src/state/              Query persistence, connectivity, favourites store
+src/lib/                Pure discovery, filtering, and recommendation logic
+src/state/              Query persistence, connectivity, favourites and watchlist stores
 src/types/              Shared movie and pagination types
 src/theme.ts            Visual tokens
-tests/                  API, storage, and query-policy unit tests
+tests/                  API, storage, discovery, and query-policy unit tests
 docs/                   Manual review checklist and recording script
 ```
 
-The favourites store and query retry policy are plain TypeScript modules, so their failure and concurrency cases can be tested without starting React Native. Query keys include the provider, and saved movie IDs include their provider prefix to prevent catalog collisions.
+The device stores, discovery helpers, and query retry policy are plain TypeScript modules, so their edge cases can be tested without starting React Native. Query keys include the provider, and saved movie IDs include their provider prefix to prevent catalog collisions.
 
 ## Validation
 
@@ -104,7 +112,7 @@ npm run export:web
 npm run export:android
 ```
 
-**Passed:** TypeScript, ESLint, formatting, all **34 unit tests**, the web production export, and the Android Hermes JavaScript export. Live browser checks covered popular/top-rated movies, page-two pagination, refresh, details, search, empty results, and favourites surviving a full reload. The interface was checked at phone and desktop sizes.
+**Passed:** TypeScript, ESLint, formatting, all **56 unit tests**, the web production export, and the Android Hermes JavaScript export. Browser checks covered the core browsing flow, personalised picks, combined filters, watchlist status changes, Undo, and saved data surviving a full reload. The interface was checked at phone and desktop sizes.
 
 Offline handling and storage failures have unit coverage. Airplane-mode behavior and native devices were not tested, and TMDB was verified with mocked responses only. The Android export is a bundle check, not an APK. See [the validation record](docs/VALIDATION.md) for evidence, remaining checks, and dependency audit findings.
 
@@ -125,9 +133,9 @@ No APK is included in this submission; the screen recording is supplied instead.
 ## Submission
 
 - **Repository:** [paidadharshitha/frame-movie-explorer](https://github.com/paidadharshitha/frame-movie-explorer)
-- **Recording:** [Two-minute Frame demo](docs/frame-demo.mp4)
+- **Recording:** [Original two-minute Frame demo](docs/frame-demo.mp4)
 
-The recording shows the real app's phone-sized web preview using live Tenrai data. It is silent, captured at 4 fps, and edited to compress inactive gaps. It demonstrates the web experience; it is not a native-device or APK recording. A [reusable demo script](docs/DEMO_SCRIPT.md) is also included.
+The recording shows the original core browsing, search, details, and favourites flow before the discovery/filter/watchlist additions. Current screenshots above show those additions. The recording uses the real app's phone-sized web preview with live Tenrai data; it is silent, captured at 4 fps, and edited to compress inactive gaps. It is not a native-device or APK recording. A [reusable demo script](docs/DEMO_SCRIPT.md) is also included.
 
 ## Data and attribution
 

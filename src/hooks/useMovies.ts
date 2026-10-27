@@ -6,6 +6,7 @@ import {
 } from '@tanstack/react-query';
 import { catalog, fetchMovie, fetchMovies, searchMovies } from '../api/movies';
 import { useFavourites } from '../state/FavouritesProvider';
+import { useWatchlist } from '../state/WatchlistProvider';
 import type { Movie, MoviePage, SortOrder } from '../types/movie';
 
 export const movieKeys = {
@@ -38,12 +39,14 @@ export function useMovieSearch(query: string) {
 export function useMovie(id: string) {
   const queryClient = useQueryClient();
   const { favourites } = useFavourites();
+  const { entries } = useWatchlist();
   const savedMovie = favourites.find((movie) => movie.id === id);
   const cachedMovie = queryClient
     .getQueriesData<InfiniteData<MoviePage>>({ queryKey: movieKeys.lists })
     .flatMap(([, data]) => data?.pages.flatMap((page) => page.movies) ?? [])
     .find((movie) => movie.id === id);
-  const snapshot = savedMovie ?? cachedMovie;
+  const watchlistMovie = entries.find((entry) => entry.movie.id === id)?.movie;
+  const snapshot = savedMovie ?? watchlistMovie ?? cachedMovie;
 
   const query = useQuery({
     queryKey: movieKeys.detail(id),

@@ -24,6 +24,7 @@ import {
   StateView,
 } from '../../src/components/ui';
 import { StatusNotices } from '../../src/components/Shell';
+import { WatchlistControls } from '../../src/components/WatchlistControls';
 
 export default function MovieDetailsScreen() {
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
@@ -183,6 +184,7 @@ export default function MovieDetailsScreen() {
               ? 'A good story, kept close. Saved on this device.'
               : 'Keep this film in your collection for later.'}
           </AppText>
+          <WatchlistControls movie={movie} />
           <AppText accessibilityRole="header" style={styles.sectionTitle}>
             The story
           </AppText>

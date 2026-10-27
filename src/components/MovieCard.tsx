@@ -4,7 +4,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { Movie } from '../types/movie';
 import { colors, fonts } from '../theme';
-import { useFavourites } from '../state';
+import { useFavourites, useWatchlist } from '../state';
 import { AppText, Icon, Rating } from './ui';
 
 export const MovieCard = memo(function MovieCard({
@@ -16,6 +16,8 @@ export const MovieCard = memo(function MovieCard({
 }) {
   const { isFavourite, toggleFavourite, isHydrated } = useFavourites();
   const saved = isFavourite(movie.id);
+  const { getStatus } = useWatchlist();
+  const status = getStatus(movie.id);
   return (
     <View style={{ width }}>
       <View style={styles.posterWrap}>
@@ -73,6 +75,18 @@ export const MovieCard = memo(function MovieCard({
         <AppText numberOfLines={1} style={styles.meta}>
           {[movie.year, movie.genres[0]].filter(Boolean).join(' · ') || 'Film'}
         </AppText>
+        {status && (
+          <View style={styles.status}>
+            <Icon
+              name={status === 'watched' ? 'checkmark-circle-outline' : 'time-outline'}
+              size={13}
+              color={colors.accent}
+            />
+            <AppText style={styles.statusText}>
+              {status === 'watched' ? 'Watched' : 'On your watchlist'}
+            </AppText>
+          </View>
+        )}
       </Pressable>
     </View>
   );
@@ -112,4 +126,6 @@ const styles = StyleSheet.create({
   caption: { paddingTop: 10, minHeight: 70 },
   title: { fontFamily: fonts.semibold, fontSize: 14, lineHeight: 20 },
   meta: { color: colors.muted, fontSize: 12, lineHeight: 19, marginTop: 3 },
+  status: { flexDirection: 'row', alignItems: 'center', gap: 4, marginTop: 4 },
+  statusText: { color: colors.accent, fontSize: 10, lineHeight: 16 },
 });

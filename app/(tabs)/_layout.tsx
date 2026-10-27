@@ -67,6 +67,15 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
+        name="watchlist"
+        options={{
+          title: 'Watchlist',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'albums' : 'albums-outline'} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="favourites"
         options={{
           title: 'Favourites',

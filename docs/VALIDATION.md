@@ -9,17 +9,17 @@ This record distinguishes completed checks from scenarios that still need a nati
 | `npm run typecheck` | Passed |
 | `npm run lint` | Passed |
 | `npm run format:check` | Passed |
-| `npm test` | 34 tests passed |
+| `npm test` | 56 tests passed |
 | `npm run export:web` | Production web export passed |
 | `npm run export:android` | Android Hermes JavaScript export passed |
 
-The unit suite covers provider normalization, pagination, malformed API responses, dropped connections, timeouts, cancellation, retry limits, connectivity events, favourites hydration, serialized writes, failed storage recovery, corrupted records, and bounded query persistence. These tests use controlled responses and storage failures; they do not replace an end-to-end airplane-mode test.
+The unit suite covers provider normalization, pagination, malformed API responses, dropped connections, timeouts, cancellation, retry limits, connectivity events, favourites/watchlist hydration, serialized writes, failed storage recovery, corrupted records, Undo timestamp preservation, and bounded query persistence. Discovery tests cover combined filters, unrated films, genre affinity, watched-film exclusion, repeat avoidance, and empty candidate pools. These tests use controlled responses and storage failures; they do not replace an end-to-end airplane-mode test.
 
 An Android JavaScript export verifies bundling. It does not produce an installable APK or demonstrate native runtime behavior.
 
 ## Browser verification
 
-The interface was checked at **390 × 844** and **1280 × 900**, with an additional initial layout check at **319 px** width.
+The interface was checked at **390 × 844** and **1280 × 900**, with the new filter controls also checked at **319 × 760**. These are browser preview dimensions, not native-device runs.
 
 | Scenario | Observed result |
 | --- | --- |
@@ -32,10 +32,18 @@ The interface was checked at **390 × 844** and **1280 × 900**, with an additio
 | Search | `Spirited` returned two live results |
 | Empty search | An unlikely `zzz` query displayed the no-results state |
 | Favourites sorting | A–Z sorting worked |
+| Surprise me | The featured film changed to a pick with an explanation based on favourite genres |
+| Watchlist saving | The Garden of Words was added to Planned from its detail screen |
+| Watched history | Marking that film watched moved it into Watched with a date |
+| Remove and Undo | Undo restored the removed entry with its watched status and date |
+| Watchlist persistence | The watched entry remained after a full browser reload |
+| Watchlist layouts | Two planned films and one watched film displayed correctly in phone and desktop layouts |
+| Hide watched | The loaded collection changed from 48 to 47 matching films |
+| Combined filters | Fantasy, rated 8+, and hide watched produced 14 matches from 48 loaded films |
 
-Screenshots: [Discover](screenshots/home.jpg), [details](screenshots/details.jpg), [search](screenshots/search.jpg), [favourites](screenshots/favourites.jpg), [empty search](screenshots/empty-search.jpg), and [desktop](screenshots/desktop.jpg).
+Current screenshots: [Discover](screenshots/discover-v2.jpg), [filters](screenshots/filters.jpg), [compact phone filters](screenshots/filters-small.jpg), [Watchlist](screenshots/watchlist.jpg), [watchlist controls in details](screenshots/watchlist-controls.jpg), [desktop Watchlist](screenshots/watchlist-desktop.jpg), and [desktop Discover](screenshots/desktop-v2.jpg). Earlier core-flow captures remain available for [details](screenshots/details.jpg), [search](screenshots/search.jpg), [favourites](screenshots/favourites.jpg), and [empty search](screenshots/empty-search.jpg).
 
-The [two-minute recording](frame-demo.mp4) is a silent capture of the actual phone-sized web preview, recorded at 4 fps with inactive gaps compressed. It is evidence of the web experience, not a native APK demonstration. The screenshots capture individual moments; their saved-movie counts may differ from the later four-movie persistence check.
+The [original two-minute recording](frame-demo.mp4) predates the discovery, filter, and watchlist additions. It captures the core phone-sized web experience at 4 fps with inactive gaps compressed; it is not a native APK demonstration. Screenshots capture individual moments, so counts can differ from later persistence checks.
 
 ## Not completed
 

@@ -31,6 +31,21 @@ These are **test scenarios and expected behavior**, not a claim that every devic
 | No results | Search for an unlikely string such as `zzqvframe987` | A clear no-results message appears, with an easy way to change the query |
 | Search pages | Search a broad term and scroll to the end | Additional results load for that exact query, with no previous query's pages mixed in |
 
+## Discovery and watch history
+
+| Scenario | Steps | Expected result |
+| --- | --- | --- |
+| Personalised pick | Save favourite films, then tap Surprise me | A loaded film appears with an honest reason; watched films are excluded and unsaved discoveries are preferred |
+| Repeat avoidance | Tap Pick again with multiple eligible films | The immediate previous pick is avoided when an alternative exists |
+| No eligible pick | Mark all films in a filtered selection watched, then request a pick | A useful message explains that more films or different filters are needed |
+| Combined filters | Select a genre, Rated 8+, and Hide watched | Every visible film matches; unrated films are excluded by the rating filter; the count identifies the loaded-film scope |
+| Filtered pagination | Apply a restrictive filter, then use Load more films | New pages expand the locally filtered selection; filtering alone does not drain every API page |
+| Empty filter result | Choose filters with no match among loaded films | Clear filters and, when available, Load more films remain usable |
+| Plan a watch | Add a film from details and open Watchlist | It appears in Planned; its card and detail status agree; Favourites are unchanged |
+| Watch and re-plan | Mark a planned film watched, then choose Watch later | It moves between the two lists with correct counts; the original added date is preserved |
+| Remove and Undo | Remove a watched entry and tap Undo within eight seconds | The entry returns with its original status and timestamps |
+| Watchlist persistence | Add planned and watched films, fully close the app, and relaunch | Both lists and their statuses survive hydration |
+
 ## Slow and lost networks
 
 | Scenario | Steps | Expected result |
@@ -42,6 +57,8 @@ These are **test scenarios and expected behavior**, not a claim that every devic
 | Resume connection | Reconnect after a failed request | The app resumes or can be retried without a restart; duplicate movies are not appended |
 | Cached cold launch | Load Discover and a detail online, allow storage to finish, close the app, disconnect, and relaunch | Persisted movie metadata appears; connectivity feedback is visible; previously visited details remain usable when cached |
 | Saved detail offline | Save a film, close the app, relaunch offline, and open it from Favourites | Its saved metadata remains useful; any unavailable additional data is handled gracefully |
+| Watchlist offline | Add a film to Watchlist, close the app, relaunch offline, and open that film | Its stored metadata remains useful even if the query cache expired; missing poster data uses a placeholder |
+| Discovery offline | Load films, disconnect, then change filters or request a surprise pick | Local filtering and picks work without a new request; watched films remain excluded |
 | Unseen detail offline | Open a detail that has never been fetched while offline | A helpful fallback or recoverable error appears; it does not show another film's details |
 | Poster request fails | Block the image host or use a fresh offline cache | A stable poster placeholder appears without breaking the card layout |
 | API limit/error | Mock a `429` or `5xx` response in a test environment | The app uses bounded retry/recovery; it does not loop or clear valid cached content |
@@ -57,13 +74,16 @@ The persisted query cache has a 24-hour retention policy and keeps up to 12 rece
 | Storage read fails | Make the initial favourites read reject | The app remains usable and explains that saved content could not be restored |
 | Damaged storage | Put invalid JSON or an invalid record in the favourites key in a test environment | App startup does not crash; invalid data is handled without unsafe assumptions |
 | Query cache independent | Save a movie, expire or clear only the query cache, then relaunch | Favourites remain because they use a separate storage key |
+| Watchlist storage failure | Make the watchlist read or write reject in a test build | A recoverable error appears; a failed initial read blocks changes and leaves the stored data untouched |
+| Watchlist rapid changes | Quickly plan, mark watched, and remove several entries | The latest state wins, writes remain ordered, and a restart matches the saved state |
+| Independent collections | Clear only the query cache after adding favourites and watchlist entries | Both personal collections remain under their own storage keys |
 
 ## Usability and release
 
 - [ ] Use Android back navigation from details and tabs; confirm there is no navigation trap.
 - [ ] Check a small phone, a larger phone, and the web preview for clipping and readable text.
 - [ ] Increase system text size and verify essential labels and actions remain accessible.
-- [ ] Navigate with VoiceOver/TalkBack: poster cards, save toggles, input, retry actions, and tabs have understandable labels.
+- [ ] Navigate with VoiceOver/TalkBack: poster cards, save toggles, filters, watchlist actions, Undo, input, retry actions, and tabs have understandable labels.
 - [ ] Scroll several pages and type while images load; no repeated full-screen spinners or frozen input.
 - [ ] Check the relevant API attribution and provider scope before recording.
 - [ ] Run both Expo export commands. If submitting an APK, build it through EAS, install it, and test this exact artifact.

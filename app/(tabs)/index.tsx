@@ -3,19 +3,73 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { catalog } from '../../src/api/movies';
 import { useMovies, flattenMovies } from '../../src/hooks';
-import { useNetworkStatus } from '../../src/state';
+import { useFavourites, useNetworkStatus, useWatchlist } from '../../src/state';
 import type { SortOrder } from '../../src/types/movie';
 import { colors, fonts } from '../../src/theme';
-import { AppText, IconButton, StateView } from '../../src/components/ui';
+import { AppText, Button, Icon, IconButton, StateView } from '../../src/components/ui';
 import { ScreenHeader, StatusNotices, screenStyles } from '../../src/components/Shell';
 import { MovieGrid } from '../../src/components/MovieGrid';
 import { FeaturedMovie } from '../../src/components/FeaturedMovie';
+import { CollectionFilters } from '../../src/components/CollectionFilters';
+import {
+  availableGenres,
+  chooseSurprise,
+  filterMovies,
+  type MovieFilters,
+  type SurprisePick,
+} from '../../src/lib/discovery';
 
 export default function DiscoverScreen() {
   const [sort, setSort] = useState<SortOrder>('popular');
+  const [filters, setFilters] = useState<MovieFilters>({ genre: null, minimumRating: null });
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [hideWatched, setHideWatched] = useState(false);
+  const [pick, setPick] = useState<SurprisePick | null>(null);
+  const [pickMessage, setPickMessage] = useState<string | null>(null);
   const query = useMovies(sort);
   const movies = useMemo(() => flattenMovies(query.data), [query.data]);
   const { isOnline } = useNetworkStatus();
+  const { favourites, isHydrated: favouritesReady } = useFavourites();
+  const { entries, isHydrated: watchlistReady } = useWatchlist();
+  const watchedIds = useMemo(
+    () =>
+      new Set(entries.filter((entry) => entry.status === 'watched').map((entry) => entry.movie.id)),
+    [entries],
+  );
+  const genres = useMemo(() => availableGenres(movies), [movies]);
+  const filteredMovies = useMemo(
+    () =>
+      filterMovies(movies, filters).filter((movie) => !hideWatched || !watchedIds.has(movie.id)),
+    [movies, filters, hideWatched, watchedIds],
+  );
+  const activeFilters =
+    Number(Boolean(filters.genre)) + Number(filters.minimumRating !== null) + Number(hideWatched);
+  const currentPick =
+    pick &&
+    filteredMovies.some((movie) => movie.id === pick.movie.id) &&
+    !watchedIds.has(pick.movie.id)
+      ? pick
+      : null;
+  const featured = currentPick?.movie ?? filteredMovies[0];
+  const surprise = () => {
+    const next = chooseSurprise({
+      movies: filteredMovies,
+      favourites,
+      watchedIds,
+      previousId: featured?.id,
+    });
+    setPick(next);
+    setPickMessage(
+      next
+        ? null
+        : 'Every film in this selection is already watched. Load more films or change your filters for a new pick.',
+    );
+  };
+  const clearFilters = () => {
+    setFilters({ genre: null, minimumRating: null });
+    setHideWatched(false);
+    setPickMessage(null);
+  };
   const refresh = useCallback(() => {
     void query.refetch();
   }, [query]);
@@ -25,7 +79,9 @@ export default function DiscoverScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={screenStyles.screen}>
       <MovieGrid
-        movies={movies}
+        movies={filteredMovies}
+        hasLoadedContent={movies.length > 0}
+        autoLoadMore={activeFilters === 0}
         loading={query.isPending}
         error={query.error}
         offline={!isOnline}
@@ -49,8 +105,33 @@ export default function DiscoverScreen() {
                 ? 'Extraordinary worlds. Unforgettable stories. Explore animated cinema.'
                 : 'Extraordinary worlds. Unforgettable stories. Explore world cinema.'}
             </AppText>
-            {movies[0] && <FeaturedMovie movie={movies[0]} />}
-            <View style={[styles.section, !movies.length && { marginTop: 30 }]}>
+            {movies.length > 0 && (
+              <>
+                <View style={styles.pickRow}>
+                  <View style={styles.pickCopy}>
+                    <AppText style={styles.pickTitle}>Let the story find you.</AppText>
+                    <AppText style={styles.pickCaption}>
+                      A little less scrolling. A little more cinema.
+                    </AppText>
+                  </View>
+                  <Button
+                    icon="shuffle"
+                    onPress={surprise}
+                    disabled={!favouritesReady || !watchlistReady || !filteredMovies.length}
+                    style={styles.surpriseButton}
+                  >
+                    {currentPick ? 'Pick again' : 'Surprise me'}
+                  </Button>
+                </View>
+                {featured && <FeaturedMovie movie={featured} personal={Boolean(currentPick)} />}
+                <AppText accessibilityLiveRegion="polite" style={styles.pickReason}>
+                  {pickMessage ??
+                    currentPick?.reason ??
+                    'Picks use your favourite genres and skip films you’ve watched.'}
+                </AppText>
+              </>
+            )}
+            <View style={[styles.section, { marginTop: 24 }]}>
               <AppText accessibilityRole="header" style={styles.sectionTitle}>
                 The collection
               </AppText>
@@ -73,7 +154,11 @@ export default function DiscoverScreen() {
                   key={item.value}
                   accessibilityRole="tab"
                   accessibilityState={{ selected: sort === item.value }}
-                  onPress={() => setSort(item.value)}
+                  onPress={() => {
+                    setSort(item.value);
+                    setPick(null);
+                    setPickMessage(null);
+                  }}
                   style={[styles.filter, sort === item.value && styles.filterActive]}
                 >
                   <AppText
@@ -83,19 +168,76 @@ export default function DiscoverScreen() {
                   </AppText>
                 </Pressable>
               ))}
-              <View style={{ flex: 1 }} />
-              <AppText style={styles.catalogLabel}>{catalog.name}</AppText>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={filtersOpen ? 'Close filters' : 'Open filters'}
+                accessibilityState={{ expanded: filtersOpen }}
+                onPress={() => setFiltersOpen(!filtersOpen)}
+                style={[styles.filterToggle, activeFilters > 0 && styles.filterSelected]}
+              >
+                <Icon
+                  name="options-outline"
+                  size={18}
+                  color={activeFilters ? colors.accent : colors.text}
+                />
+                <AppText style={[styles.filterText, activeFilters > 0 && { color: colors.accent }]}>
+                  Filters{activeFilters > 0 ? ` · ${activeFilters}` : ''}
+                </AppText>
+              </Pressable>
+            </View>
+            {filtersOpen && (
+              <CollectionFilters
+                genres={genres}
+                filters={filters}
+                onChange={(next) => {
+                  setFilters(next);
+                  setPickMessage(null);
+                }}
+                hideWatched={hideWatched}
+                onHideWatchedChange={setHideWatched}
+              />
+            )}
+            <View style={styles.scopeRow}>
+              <AppText style={styles.catalogLabel}>
+                {activeFilters
+                  ? `${filteredMovies.length} of ${movies.length} loaded films · filters apply locally`
+                  : catalog.name}
+              </AppText>
+              {activeFilters > 0 && (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Clear filters"
+                  onPress={clearFilters}
+                  style={styles.clearButton}
+                >
+                  <AppText style={styles.clearText}>Clear</AppText>
+                </Pressable>
+              )}
             </View>
           </>
         }
         empty={
-          <StateView
-            icon="film-outline"
-            title="No films here just yet."
-            description="The catalog is taking an intermission. Try refreshing in a moment."
-            action="Refresh"
-            onAction={refresh}
-          />
+          activeFilters && movies.length > 0 ? (
+            <StateView
+              icon="options-outline"
+              title="A different kind of story?"
+              description={
+                query.hasNextPage
+                  ? 'No matches in the films loaded so far. Clear your filters or load another page below.'
+                  : 'No loaded films match these filters. Try another genre or include films you’ve already watched.'
+              }
+              action="Clear filters"
+              onAction={clearFilters}
+            />
+          ) : (
+            <StateView
+              icon="film-outline"
+              title="No films here just yet."
+              description="The catalog is taking an intermission. Try refreshing in a moment."
+              action="Refresh"
+              onAction={refresh}
+            />
+          )
         }
       />
     </SafeAreaView>
@@ -114,7 +256,7 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     alignItems: 'center',
     gap: 8,
-    marginBottom: 24,
+    marginBottom: 8,
   },
   filter: {
     minHeight: 48,
@@ -127,4 +269,31 @@ const styles = StyleSheet.create({
   filterText: { fontSize: 13, fontFamily: fonts.medium, color: colors.muted },
   filterTextActive: { color: colors.onAccent, fontFamily: fonts.bold },
   catalogLabel: { fontSize: 11, color: colors.muted },
+  pickRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginTop: 26 },
+  pickCopy: { flex: 1, minWidth: 180 },
+  pickTitle: { fontFamily: fonts.display, fontSize: 25, lineHeight: 30 },
+  pickCaption: { fontSize: 11, lineHeight: 17, color: colors.muted, marginTop: 4 },
+  surpriseButton: { paddingHorizontal: 16 },
+  pickReason: { fontSize: 11, lineHeight: 18, color: colors.muted, paddingHorizontal: 2 },
+  filterToggle: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    minHeight: 48,
+    paddingHorizontal: 14,
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  filterSelected: { borderColor: '#5A7139', backgroundColor: '#26331C' },
+  scopeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 48,
+    gap: 8,
+    marginBottom: 12,
+  },
+  clearButton: { minHeight: 48, paddingHorizontal: 8, justifyContent: 'center' },
+  clearText: { color: colors.accent, fontSize: 12, fontFamily: fonts.medium },
 });

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import { useFavourites, useNetworkStatus } from '../state';
+import { useFavourites, useNetworkStatus, useWatchlist } from '../state';
 import { AppText, Icon, IconButton, InlineNotice } from './ui';
 import { colors, fonts } from '../theme';
 
@@ -38,11 +38,20 @@ export function ScreenHeader({ search = false }: { search?: boolean }) {
 export function StatusNotices() {
   const { isOnline } = useNetworkStatus();
   const { storageError, retrySave } = useFavourites();
+  const watchlist = useWatchlist();
   return (
     <>
       {!isOnline && <InlineNotice message="You’re offline. We’ll reconnect automatically." />}
       {storageError && (
         <InlineNotice message={storageError} action="Retry" onAction={retrySave} warning />
+      )}
+      {watchlist.storageError && (
+        <InlineNotice
+          message={watchlist.storageError}
+          action="Retry"
+          onAction={watchlist.retrySave}
+          warning
+        />
       )}
     </>
   );

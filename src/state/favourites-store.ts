@@ -14,7 +14,7 @@ export interface FavouritesSnapshot {
   storageError: string | null;
 }
 
-function isMovie(value: unknown): value is Movie {
+export function isMovie(value: unknown): value is Movie {
   if (!value || typeof value !== 'object') return false;
   const movie = value as Record<string, unknown>;
   const id = typeof movie.id === 'string' ? /^(jikan|tmdb)-([1-9]\d*)$/.exec(movie.id) : null;

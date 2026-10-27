@@ -5,6 +5,7 @@ import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client
 import { useState, type PropsWithChildren } from 'react';
 import { FavouritesProvider } from './FavouritesProvider';
 import { NetworkProvider } from './NetworkProvider';
+import { WatchlistProvider } from './WatchlistProvider';
 import {
   QUERY_STORAGE_KEY,
   serializeQueryCache,
@@ -61,7 +62,9 @@ export function AppProviders({ children }: PropsWithChildren) {
           dehydrateOptions: { shouldDehydrateQuery: (query) => query.state.data !== undefined },
         }}
       >
-        <FavouritesProvider>{children}</FavouritesProvider>
+        <FavouritesProvider>
+          <WatchlistProvider>{children}</WatchlistProvider>
+        </FavouritesProvider>
       </PersistQueryClientProvider>
     </NetworkProvider>
   );

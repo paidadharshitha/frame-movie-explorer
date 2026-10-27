@@ -51,6 +51,8 @@ type Props = {
   onMore?: () => void;
   empty?: ReactElement;
   footerLabel?: string;
+  autoLoadMore?: boolean;
+  hasLoadedContent?: boolean;
 };
 export const MovieGrid = memo(function MovieGrid({
   movies,
@@ -66,6 +68,8 @@ export const MovieGrid = memo(function MovieGrid({
   onMore,
   empty,
   footerLabel,
+  autoLoadMore = true,
+  hasLoadedContent = false,
 }: Props) {
   const { columns, itemWidth } = useGridLayout();
   const renderItem = useCallback(
@@ -74,13 +78,22 @@ export const MovieGrid = memo(function MovieGrid({
   );
   const keyExtractor = useCallback((item: Movie) => item.id, []);
   const handleEndReached = useCallback(() => {
-    if (hasMore && !loading && !refreshing && !fetchingMore && !pageError && !offline) onMore?.();
-  }, [hasMore, loading, refreshing, fetchingMore, pageError, offline, onMore]);
+    if (
+      autoLoadMore &&
+      hasMore &&
+      !loading &&
+      !refreshing &&
+      !fetchingMore &&
+      !pageError &&
+      !offline
+    )
+      onMore?.();
+  }, [autoLoadMore, hasMore, loading, refreshing, fetchingMore, pageError, offline, onMore]);
   const headerContent = useMemo(
     () => (
       <>
         {header}
-        {error && movies.length > 0 && !pageError && (
+        {error && (movies.length > 0 || hasLoadedContent) && !pageError && (
           <InlineNotice
             message="Couldn't update the collection. Your loaded films are still here."
             action="Retry"
@@ -90,10 +103,12 @@ export const MovieGrid = memo(function MovieGrid({
         )}
       </>
     ),
-    [header, error, movies.length, pageError, onRefresh],
+    [header, error, movies.length, hasLoadedContent, pageError, onRefresh],
   );
   const emptyContent =
-    loading && !offline ? (
+    hasLoadedContent && empty ? (
+      empty
+    ) : loading && !offline ? (
       <GridSkeleton />
     ) : error || offline ? (
       <StateView
@@ -152,7 +167,7 @@ export const MovieGrid = memo(function MovieGrid({
                 Try again
               </Button>
             </>
-          ) : movies.length > 0 ? (
+          ) : movies.length > 0 || hasMore ? (
             <>
               <View style={styles.endMark} />
               <AppText style={styles.footerText}>
