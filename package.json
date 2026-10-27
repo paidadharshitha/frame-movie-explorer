@@ -16,6 +16,7 @@
     "export:web": "expo export --platform web",
     "export:android": "expo export --platform android",
     "build:apk": "npx eas-cli build --platform android --profile preview",
+    "build:apk:local": "node scripts/build-android-preview.mjs",
     "format": "prettier --write app src tests *.json *.mts .github/workflows",
     "format:check": "prettier --check app src tests *.json *.mts .github/workflows"
   },

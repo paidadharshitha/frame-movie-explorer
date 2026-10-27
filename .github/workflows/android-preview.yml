@@ -32,7 +32,7 @@ jobs:
         # workflow from accepting any additional license terms interactively.
         run: |
           "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" \
-            "platforms;android-37" "build-tools;37.0.0" \
+            "platforms;android-37.0" "build-tools;37.0.0" \
             "ndk;27.1.12297006" "cmake;3.30.5" < /dev/null
       - name: Build standalone arm64 preview
         working-directory: android
