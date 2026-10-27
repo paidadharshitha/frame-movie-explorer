@@ -3,11 +3,13 @@ import { Image } from 'expo-image';
 import { Linking, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { catalog } from '../src/api/movies';
-import { colors, fonts } from '../src/theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../src/theme';
 import { AppText, Button, Icon, IconButton } from '../src/components/ui';
 import { Brand } from '../src/components/Shell';
 
 export default function AboutScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }}>
       <ScrollView contentContainerStyle={styles.content}>
@@ -29,10 +31,10 @@ export default function AboutScreen() {
         <View style={styles.divider} />
         <AppText style={styles.heading}>Your collection, your device.</AppText>
         <AppText style={styles.body}>
-          Favourites, watchlists, demo profiles, and comments stay on this device. Previously loaded
-          film information is cached for up to 24 hours, so you can keep exploring when your
-          connection takes an intermission. Images are cached separately and may need a connection
-          the first time.
+          Favourites, watchlists, ratings, custom collections, demo profiles, and comments stay on
+          this device. Previously loaded title information is cached for up to 24 hours, so you can
+          keep exploring when your connection takes an intermission. Images are cached separately
+          and may need a connection the first time.
         </AppText>
         <View style={styles.info}>
           <Icon name="cloud-done-outline" color={colors.accent} />
@@ -44,9 +46,9 @@ export default function AboutScreen() {
         <AppText style={styles.body}>{catalog.attribution}</AppText>
         {catalog.id === 'jikan' ? (
           <AppText style={styles.body}>
-            The key-free collection focuses on animated films. Ratings reflect MyAnimeList community
-            scores. Tenrai is an independent public API and availability may vary. Film artwork
-            belongs to its respective owners.
+            The key-free collection focuses on animated movies and series. Community ratings reflect
+            MyAnimeList scores; your personal rating is separate. Tenrai is an independent public
+            API and availability may vary. Artwork belongs to its respective owners.
           </AppText>
         ) : (
           <Image
@@ -77,29 +79,30 @@ export default function AboutScreen() {
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  content: { padding: 24, maxWidth: 720, width: '100%', alignSelf: 'center', paddingBottom: 48 },
-  nav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 48,
-  },
-  title: { fontFamily: fonts.display, fontSize: 52, lineHeight: 56 },
-  intro: { color: colors.muted, marginTop: 20, fontSize: 16, lineHeight: 27 },
-  divider: { height: 1, backgroundColor: colors.border, marginVertical: 32 },
-  heading: { fontFamily: fonts.semibold, fontSize: 21, lineHeight: 28, marginBottom: 12 },
-  body: { color: colors.muted, fontSize: 14, lineHeight: 24, marginBottom: 12 },
-  info: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginTop: 10,
-    marginBottom: 36,
-    padding: 18,
-    borderRadius: 12,
-    backgroundColor: colors.surface,
-  },
-  infoText: { color: colors.text, fontSize: 13, flex: 1 },
-  version: { color: colors.muted, fontSize: 11, marginTop: 48 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    content: { padding: 24, maxWidth: 720, width: '100%', alignSelf: 'center', paddingBottom: 48 },
+    nav: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 48,
+    },
+    title: { fontFamily: fonts.display, fontSize: 52, lineHeight: 56 },
+    intro: { color: colors.muted, marginTop: 20, fontSize: 16, lineHeight: 27 },
+    divider: { height: 1, backgroundColor: colors.border, marginVertical: 32 },
+    heading: { fontFamily: fonts.semibold, fontSize: 21, lineHeight: 28, marginBottom: 12 },
+    body: { color: colors.muted, fontSize: 14, lineHeight: 24, marginBottom: 12 },
+    info: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginTop: 10,
+      marginBottom: 36,
+      padding: 18,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+    },
+    infoText: { color: colors.text, fontSize: 13, flex: 1 },
+    version: { color: colors.muted, fontSize: 11, marginTop: 48 },
+  });

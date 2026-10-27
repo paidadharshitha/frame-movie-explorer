@@ -3,11 +3,12 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { catalog } from '../../src/api/movies';
 import { useMovies, flattenMovies } from '../../src/hooks';
-import { useFavourites, useNetworkStatus, useWatchlist } from '../../src/state';
+import { useBrowse, useFavourites, useNetworkStatus, useWatchlist } from '../../src/state';
+import { CatalogSelector } from '../../src/components/CatalogSelector';
 import type { SortOrder } from '../../src/types/movie';
-import { colors, fonts } from '../../src/theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../../src/theme';
 import { AppText, Button, Icon, IconButton, StateView } from '../../src/components/ui';
-import { ScreenHeader, StatusNotices, screenStyles } from '../../src/components/Shell';
+import { ScreenHeader, StatusNotices, useScreenStyles } from '../../src/components/Shell';
 import { MovieGrid } from '../../src/components/MovieGrid';
 import { FeaturedMovie } from '../../src/components/FeaturedMovie';
 import { CollectionFilters } from '../../src/components/CollectionFilters';
@@ -20,13 +21,17 @@ import {
 } from '../../src/lib/discovery';
 
 export default function DiscoverScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
+  const screenStyles = useScreenStyles();
   const [sort, setSort] = useState<SortOrder>('popular');
   const [filters, setFilters] = useState<MovieFilters>({ genre: null, minimumRating: null });
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [hideWatched, setHideWatched] = useState(false);
   const [pick, setPick] = useState<SurprisePick | null>(null);
   const [pickMessage, setPickMessage] = useState<string | null>(null);
-  const query = useMovies(sort);
+  const browse = useBrowse();
+  const query = useMovies(sort, browse);
   const movies = useMemo(() => flattenMovies(query.data), [query.data]);
   const { isOnline } = useNetworkStatus();
   const { favourites, isHydrated: favouritesReady } = useFavourites();
@@ -62,7 +67,7 @@ export default function DiscoverScreen() {
     setPickMessage(
       next
         ? null
-        : 'Every film in this selection is already watched. Load more films or change your filters for a new pick.',
+        : 'Every title in this selection is already watched. Load more titles or change your filters for a new pick.',
     );
   };
   const clearFilters = () => {
@@ -79,6 +84,7 @@ export default function DiscoverScreen() {
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={screenStyles.screen}>
       <MovieGrid
+        key={`${browse.mediaType}-${browse.language}-${sort}`}
         movies={filteredMovies}
         hasLoadedContent={movies.length > 0}
         autoLoadMore={activeFilters === 0}
@@ -98,13 +104,16 @@ export default function DiscoverScreen() {
             <ScreenHeader search />
             <StatusNotices />
             <AppText accessibilityRole="header" style={screenStyles.title}>
-              Find your next{`\n`}favourite film.
+              Find your next{`\n`}favourite {browse.mediaType === 'series' ? 'series' : 'film'}.
             </AppText>
             <AppText style={screenStyles.subtitle}>
               {catalog.id === 'jikan'
                 ? 'Extraordinary worlds. Unforgettable stories. Explore animated cinema.'
                 : 'Extraordinary worlds. Unforgettable stories. Explore world cinema.'}
             </AppText>
+            <View style={{ marginTop: 24 }}>
+              <CatalogSelector />
+            </View>
             {movies.length > 0 && (
               <>
                 <View style={styles.pickRow}>
@@ -127,7 +136,7 @@ export default function DiscoverScreen() {
                 <AppText accessibilityLiveRegion="polite" style={styles.pickReason}>
                   {pickMessage ??
                     currentPick?.reason ??
-                    'Picks use your favourite genres and skip films you’ve watched.'}
+                    'Picks use your favourite genres and skip titles you’ve watched.'}
                 </AppText>
               </>
             )}
@@ -137,7 +146,7 @@ export default function DiscoverScreen() {
               </AppText>
               <IconButton
                 name="refresh-outline"
-                label="Refresh movies"
+                label="Refresh titles"
                 onPress={refresh}
                 disabled={query.isFetching || !isOnline}
                 style={{ backgroundColor: 'transparent' }}
@@ -200,7 +209,7 @@ export default function DiscoverScreen() {
             <View style={styles.scopeRow}>
               <AppText style={styles.catalogLabel}>
                 {activeFilters
-                  ? `${filteredMovies.length} of ${movies.length} loaded films · filters apply locally`
+                  ? `${filteredMovies.length} of ${movies.length} loaded titles · filters apply locally`
                   : catalog.name}
               </AppText>
               {activeFilters > 0 && (
@@ -223,8 +232,8 @@ export default function DiscoverScreen() {
               title="A different kind of story?"
               description={
                 query.hasNextPage
-                  ? 'No matches in the films loaded so far. Clear your filters or load another page below.'
-                  : 'No loaded films match these filters. Try another genre or include films you’ve already watched.'
+                  ? 'No matches in the titles loaded so far. Clear your filters or load another page below.'
+                  : 'No loaded titles match these filters. Try another genre or include titles you’ve already watched.'
               }
               action="Clear filters"
               onAction={clearFilters}
@@ -243,57 +252,64 @@ export default function DiscoverScreen() {
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  section: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-  },
-  sectionTitle: { fontSize: 23, lineHeight: 30, fontFamily: fonts.semibold, letterSpacing: -0.5 },
-  filters: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 8,
-  },
-  filter: {
-    minHeight: 48,
-    paddingHorizontal: 18,
-    justifyContent: 'center',
-    borderRadius: 24,
-    backgroundColor: colors.surface,
-  },
-  filterActive: { backgroundColor: colors.accent },
-  filterText: { fontSize: 13, fontFamily: fonts.medium, color: colors.muted },
-  filterTextActive: { color: colors.onAccent, fontFamily: fonts.bold },
-  catalogLabel: { fontSize: 11, color: colors.muted },
-  pickRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 14, marginTop: 26 },
-  pickCopy: { flex: 1, minWidth: 180 },
-  pickTitle: { fontFamily: fonts.display, fontSize: 25, lineHeight: 30 },
-  pickCaption: { fontSize: 11, lineHeight: 17, color: colors.muted, marginTop: 4 },
-  surpriseButton: { paddingHorizontal: 16 },
-  pickReason: { fontSize: 11, lineHeight: 18, color: colors.muted, paddingHorizontal: 2 },
-  filterToggle: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    minHeight: 48,
-    paddingHorizontal: 14,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: colors.border,
-  },
-  filterSelected: { borderColor: '#5A7139', backgroundColor: '#26331C' },
-  scopeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: 48,
-    gap: 8,
-    marginBottom: 12,
-  },
-  clearButton: { minHeight: 48, paddingHorizontal: 8, justifyContent: 'center' },
-  clearText: { color: colors.accent, fontSize: 12, fontFamily: fonts.medium },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    section: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 8,
+    },
+    sectionTitle: { fontSize: 23, lineHeight: 30, fontFamily: fonts.semibold, letterSpacing: -0.5 },
+    filters: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 8,
+    },
+    filter: {
+      minHeight: 48,
+      paddingHorizontal: 18,
+      justifyContent: 'center',
+      borderRadius: 24,
+      backgroundColor: colors.surface,
+    },
+    filterActive: { backgroundColor: colors.accent },
+    filterText: { fontSize: 13, fontFamily: fonts.medium, color: colors.muted },
+    filterTextActive: { color: colors.onAccent, fontFamily: fonts.bold },
+    catalogLabel: { fontSize: 11, color: colors.muted },
+    pickRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      flexWrap: 'wrap',
+      gap: 14,
+      marginTop: 26,
+    },
+    pickCopy: { flex: 1, minWidth: 180 },
+    pickTitle: { fontFamily: fonts.display, fontSize: 25, lineHeight: 30 },
+    pickCaption: { fontSize: 11, lineHeight: 17, color: colors.muted, marginTop: 4 },
+    surpriseButton: { paddingHorizontal: 16 },
+    pickReason: { fontSize: 11, lineHeight: 18, color: colors.muted, paddingHorizontal: 2 },
+    filterToggle: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      minHeight: 48,
+      paddingHorizontal: 14,
+      borderRadius: 24,
+      borderWidth: 1,
+      borderColor: colors.border,
+    },
+    filterSelected: { borderColor: colors.selectionBorder, backgroundColor: colors.selection },
+    scopeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      minHeight: 48,
+      gap: 8,
+      marginBottom: 12,
+    },
+    clearButton: { minHeight: 48, paddingHorizontal: 8, justifyContent: 'center' },
+    clearText: { color: colors.accent, fontSize: 12, fontFamily: fonts.medium },
+  });

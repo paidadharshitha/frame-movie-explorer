@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
   View,
 } from 'react-native';
-import { colors, fonts } from '../theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../theme';
 import type { Movie } from '../types/movie';
 import { MovieCard } from './MovieCard';
 import { AppText, Button, InlineNotice, StateView } from './ui';
@@ -19,10 +19,11 @@ export function useGridLayout() {
   return { columns, itemWidth: (contentWidth - 48 - (columns - 1) * 16) / columns };
 }
 export function GridSkeleton() {
+  const styles = useThemedStyles(createStyles);
   const { itemWidth } = useGridLayout();
   return (
     <View
-      accessibilityLabel="Loading films"
+      accessibilityLabel="Loading titles"
       accessibilityRole="progressbar"
       style={styles.skeletonWrap}
     >
@@ -71,6 +72,8 @@ export const MovieGrid = memo(function MovieGrid({
   autoLoadMore = true,
   hasLoadedContent = false,
 }: Props) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { columns, itemWidth } = useGridLayout();
   const renderItem = useCallback(
     ({ item }: { item: Movie }) => <MovieCard movie={item} width={itemWidth} />,
@@ -95,7 +98,7 @@ export const MovieGrid = memo(function MovieGrid({
         {header}
         {error && (movies.length > 0 || hasLoadedContent) && !pageError && (
           <InlineNotice
-            message="Couldn't update the collection. Your loaded films are still here."
+            message="Couldn't update the collection. Your loaded titles are still here."
             action="Retry"
             onAction={onRefresh}
             warning
@@ -113,10 +116,10 @@ export const MovieGrid = memo(function MovieGrid({
     ) : error || offline ? (
       <StateView
         icon={offline ? 'cloud-offline-outline' : 'film-outline'}
-        title={offline ? 'A little intermission.' : 'The films couldn’t load.'}
+        title={offline ? 'A little intermission.' : 'The titles couldn’t load.'}
         description={
           offline
-            ? 'Reconnect to load this collection. You can still visit films saved in your Favourites.'
+            ? 'Reconnect to load this collection. You can still visit titles saved in your Favourites.'
             : error?.message || 'Check your connection and try again.'
         }
         action={offline ? undefined : 'Try again'}
@@ -159,10 +162,10 @@ export const MovieGrid = memo(function MovieGrid({
       ListFooterComponent={
         <View style={styles.footer}>
           {fetchingMore ? (
-            <ActivityIndicator color={colors.accent} accessibilityLabel="Loading more films" />
+            <ActivityIndicator color={colors.accent} accessibilityLabel="Loading more titles" />
           ) : pageError ? (
             <>
-              <AppText style={styles.footerText}>The next films couldn’t load.</AppText>
+              <AppText style={styles.footerText}>The next titles couldn’t load.</AppText>
               <Button onPress={() => onMore?.()} secondary icon="refresh">
                 Try again
               </Button>
@@ -173,13 +176,13 @@ export const MovieGrid = memo(function MovieGrid({
               <AppText style={styles.footerText}>
                 {hasMore
                   ? offline
-                    ? 'Reconnect to discover more films.'
+                    ? 'Reconnect to discover more titles.'
                     : 'More stories, just a scroll away.'
                   : footerLabel || 'You’ve reached the end of this collection.'}
               </AppText>
               {hasMore && !offline && (
                 <Button onPress={() => onMore?.()} secondary icon="add">
-                  Load more films
+                  Load more titles
                 </Button>
               )}
             </>
@@ -189,20 +192,26 @@ export const MovieGrid = memo(function MovieGrid({
     />
   );
 });
-const styles = StyleSheet.create({
-  list: { flex: 1, backgroundColor: colors.background },
-  content: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-    maxWidth: 1180,
-    width: '100%',
-    alignSelf: 'center',
-    flexGrow: 1,
-  },
-  row: { gap: 16, marginBottom: 20 },
-  skeletonWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
-  skeleton: { backgroundColor: colors.raised, borderRadius: 12 },
-  footer: { paddingTop: 16, paddingBottom: 28, alignItems: 'center', gap: 16 },
-  footerText: { color: colors.muted, fontSize: 12, fontFamily: fonts.medium, textAlign: 'center' },
-  endMark: { width: 24, height: 2, backgroundColor: colors.border, marginBottom: 2 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    list: { flex: 1, backgroundColor: colors.background },
+    content: {
+      paddingHorizontal: 24,
+      paddingBottom: 32,
+      maxWidth: 1180,
+      width: '100%',
+      alignSelf: 'center',
+      flexGrow: 1,
+    },
+    row: { gap: 16, marginBottom: 20 },
+    skeletonWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
+    skeleton: { backgroundColor: colors.raised, borderRadius: 12 },
+    footer: { paddingTop: 16, paddingBottom: 28, alignItems: 'center', gap: 16 },
+    footerText: {
+      color: colors.muted,
+      fontSize: 12,
+      fontFamily: fonts.medium,
+      textAlign: 'center',
+    },
+    endMark: { width: 24, height: 2, backgroundColor: colors.border, marginBottom: 2 },
+  });

@@ -3,13 +3,15 @@ import { ActivityIndicator, Pressable, StyleSheet, Switch, TextInput, View } fro
 import { router } from 'expo-router';
 import { useCommunity } from '../state/CommunityProvider';
 import { MAX_COMMENT_LENGTH, type LocalComment, type LocalProfile } from '../state/community-store';
-import { colors, fonts } from '../theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../theme';
 import { AppText, Button, Icon, IconButton, InlineNotice } from './ui';
 
 const PAGE_SIZE = 10;
 const COMMENT_LIMIT = MAX_COMMENT_LENGTH;
 
 function CommentComposer({ movieId, profile }: { movieId: string; profile: LocalProfile }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { addComment, isHydrated } = useCommunity();
   const [text, setText] = useState('');
   const [spoiler, setSpoiler] = useState(false);
@@ -90,6 +92,8 @@ function CommentComposer({ movieId, profile }: { movieId: string; profile: Local
 }
 
 function CommentThread({ movieId }: { movieId: string }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { profile, comments, isHydrated, storageError, deleteComment, restoreComment, retrySave } =
     useCommunity();
   const [limit, setLimit] = useState(PAGE_SIZE);
@@ -291,98 +295,99 @@ export function MovieComments({ movieId }: { movieId: string }) {
   return <CommentThread key={movieId} movieId={movieId} />;
 }
 
-const styles = StyleSheet.create({
-  section: { marginTop: 36, paddingTop: 28, borderTopWidth: 1, borderTopColor: colors.border },
-  headingRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  heading: { fontFamily: fonts.display, fontSize: 32, lineHeight: 38, flex: 1 },
-  count: { color: colors.muted, fontFamily: fonts.medium, fontSize: 17 },
-  scope: { color: colors.muted, fontSize: 12, marginTop: 8, marginBottom: 24 },
-  composer: { marginBottom: 24 },
-  composerLabel: { color: colors.text, fontSize: 13, fontFamily: fonts.medium, marginBottom: 12 },
-  input: {
-    minHeight: 128,
-    maxHeight: 260,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    color: colors.text,
-    fontFamily: fonts.regular,
-    fontSize: 14,
-    lineHeight: 23,
-    outlineWidth: 0,
-  },
-  inputFocused: { borderColor: colors.accent },
-  composerOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 8,
-    marginTop: 6,
-    marginBottom: 12,
-  },
-  spoilerOption: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 9 },
-  spoilerLabel: { fontSize: 12, color: colors.muted },
-  characterCount: { color: colors.muted, fontSize: 11 },
-  postRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: 12,
-    justifyContent: 'space-between',
-  },
-  localHint: { flex: 1, minWidth: 130, color: colors.muted, fontSize: 11, lineHeight: 17 },
-  pending: { paddingVertical: 28, alignItems: 'center', gap: 14 },
-  muted: { color: colors.muted, fontSize: 13, lineHeight: 20 },
-  signIn: { alignItems: 'flex-start', gap: 16, marginBottom: 24 },
-  signInText: { color: colors.muted, fontSize: 14, lineHeight: 22 },
-  empty: { alignItems: 'center', paddingVertical: 30, gap: 10 },
-  emptyTitle: { fontFamily: fonts.medium, fontSize: 14, textAlign: 'center' },
-  emptyText: { color: colors.muted, fontSize: 12, lineHeight: 19, textAlign: 'center' },
-  orderNote: { color: colors.muted, fontSize: 11, marginTop: 4, marginBottom: 4 },
-  comment: { paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: colors.border },
-  authorRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: colors.raised,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  initial: { color: colors.accent, fontFamily: fonts.semibold, fontSize: 16 },
-  authorInfo: { flex: 1 },
-  authorName: { fontFamily: fonts.semibold, fontSize: 13, lineHeight: 20 },
-  date: { color: colors.muted, fontSize: 10, lineHeight: 16, marginTop: 2 },
-  deleteButton: { backgroundColor: 'transparent' },
-  commentText: { marginTop: 14, color: colors.text, fontSize: 14, lineHeight: 24 },
-  spoilerButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    minHeight: 48,
-    gap: 8,
-    marginTop: 8,
-  },
-  actionText: {
-    color: colors.accent,
-    fontFamily: fonts.medium,
-    fontSize: 12,
-    lineHeight: 18,
-    flexShrink: 1,
-  },
-  undo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingLeft: 14,
-    paddingRight: 6,
-    backgroundColor: colors.raised,
-    borderRadius: 12,
-    marginBottom: 12,
-  },
-  undoText: { fontSize: 13, flex: 1, paddingVertical: 10 },
-  quietButton: { minHeight: 48, minWidth: 64, alignItems: 'center', justifyContent: 'center' },
-  moreButton: { alignSelf: 'center', marginTop: 20 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    section: { marginTop: 36, paddingTop: 28, borderTopWidth: 1, borderTopColor: colors.border },
+    headingRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+    heading: { fontFamily: fonts.display, fontSize: 32, lineHeight: 38, flex: 1 },
+    count: { color: colors.muted, fontFamily: fonts.medium, fontSize: 17 },
+    scope: { color: colors.muted, fontSize: 12, marginTop: 8, marginBottom: 24 },
+    composer: { marginBottom: 24 },
+    composerLabel: { color: colors.text, fontSize: 13, fontFamily: fonts.medium, marginBottom: 12 },
+    input: {
+      minHeight: 128,
+      maxHeight: 260,
+      padding: 16,
+      borderRadius: 12,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      color: colors.text,
+      fontFamily: fonts.regular,
+      fontSize: 14,
+      lineHeight: 23,
+      outlineWidth: 0,
+    },
+    inputFocused: { borderColor: colors.accent },
+    composerOptions: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 8,
+      marginTop: 6,
+      marginBottom: 12,
+    },
+    spoilerOption: { minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 9 },
+    spoilerLabel: { fontSize: 12, color: colors.muted },
+    characterCount: { color: colors.muted, fontSize: 11 },
+    postRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      alignItems: 'center',
+      gap: 12,
+      justifyContent: 'space-between',
+    },
+    localHint: { flex: 1, minWidth: 130, color: colors.muted, fontSize: 11, lineHeight: 17 },
+    pending: { paddingVertical: 28, alignItems: 'center', gap: 14 },
+    muted: { color: colors.muted, fontSize: 13, lineHeight: 20 },
+    signIn: { alignItems: 'flex-start', gap: 16, marginBottom: 24 },
+    signInText: { color: colors.muted, fontSize: 14, lineHeight: 22 },
+    empty: { alignItems: 'center', paddingVertical: 30, gap: 10 },
+    emptyTitle: { fontFamily: fonts.medium, fontSize: 14, textAlign: 'center' },
+    emptyText: { color: colors.muted, fontSize: 12, lineHeight: 19, textAlign: 'center' },
+    orderNote: { color: colors.muted, fontSize: 11, marginTop: 4, marginBottom: 4 },
+    comment: { paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: colors.border },
+    authorRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    avatar: {
+      width: 38,
+      height: 38,
+      borderRadius: 19,
+      backgroundColor: colors.raised,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    initial: { color: colors.accent, fontFamily: fonts.semibold, fontSize: 16 },
+    authorInfo: { flex: 1 },
+    authorName: { fontFamily: fonts.semibold, fontSize: 13, lineHeight: 20 },
+    date: { color: colors.muted, fontSize: 10, lineHeight: 16, marginTop: 2 },
+    deleteButton: { backgroundColor: 'transparent' },
+    commentText: { marginTop: 14, color: colors.text, fontSize: 14, lineHeight: 24 },
+    spoilerButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      minHeight: 48,
+      gap: 8,
+      marginTop: 8,
+    },
+    actionText: {
+      color: colors.accent,
+      fontFamily: fonts.medium,
+      fontSize: 12,
+      lineHeight: 18,
+      flexShrink: 1,
+    },
+    undo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingLeft: 14,
+      paddingRight: 6,
+      backgroundColor: colors.raised,
+      borderRadius: 12,
+      marginBottom: 12,
+    },
+    undoText: { fontSize: 13, flex: 1, paddingVertical: 10 },
+    quietButton: { minHeight: 48, minWidth: 64, alignItems: 'center', justifyContent: 'center' },
+    moreButton: { alignSelf: 'center', marginTop: 20 },
+  });

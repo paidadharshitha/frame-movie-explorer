@@ -1,5 +1,5 @@
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
-import { colors, fonts } from '../theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../theme';
 import { AppText, Icon } from './ui';
 import type { MovieFilters } from '../lib/discovery';
 
@@ -12,6 +12,8 @@ function FilterChip({
   selected: boolean;
   onPress: () => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   return (
     <Pressable
       accessibilityRole="button"
@@ -42,6 +44,7 @@ export function CollectionFilters({
   hideWatched: boolean;
   onHideWatchedChange: (value: boolean) => void;
 }) {
+  const styles = useThemedStyles(createStyles);
   const options =
     filters.genre && !genres.includes(filters.genre) ? [...genres, filters.genre] : genres;
   return (
@@ -84,21 +87,22 @@ export function CollectionFilters({
   );
 }
 
-const styles = StyleSheet.create({
-  panel: { paddingTop: 8, paddingBottom: 18, gap: 12 },
-  label: { fontFamily: fonts.medium, fontSize: 13, color: colors.muted },
-  row: { gap: 8, paddingRight: 24 },
-  options: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: {
-    minHeight: 48,
-    paddingHorizontal: 14,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 24,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  selected: { backgroundColor: '#26331C', borderColor: '#5A7139' },
-  chipText: { fontFamily: fonts.medium, fontSize: 12, color: colors.text },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    panel: { paddingTop: 8, paddingBottom: 18, gap: 12 },
+    label: { fontFamily: fonts.medium, fontSize: 13, color: colors.muted },
+    row: { gap: 8, paddingRight: 24 },
+    options: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+    chip: {
+      minHeight: 48,
+      paddingHorizontal: 14,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 24,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    selected: { backgroundColor: colors.selection, borderColor: colors.selectionBorder },
+    chipText: { fontFamily: fonts.medium, fontSize: 12, color: colors.text },
+  });

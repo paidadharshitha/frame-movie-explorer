@@ -1,0 +1,314 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-27T08:33:05.757952+00:00",
+  "title": "Design System: Frame",
+  "extensions": {
+    "colorMeta": {
+      "dark-background": {
+        "role": "neutral",
+        "displayName": "Dark Background"
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Dark Surface"
+      },
+      "dark-raised": {
+        "role": "neutral",
+        "displayName": "Dark Raised"
+      },
+      "dark-text": {
+        "role": "neutral",
+        "displayName": "Dark Text"
+      },
+      "dark-muted": {
+        "role": "neutral",
+        "displayName": "Dark Muted"
+      },
+      "dark-subtle": {
+        "role": "neutral",
+        "displayName": "Dark Subtle"
+      },
+      "dark-border": {
+        "role": "neutral",
+        "displayName": "Dark Border"
+      },
+      "dark-accent": {
+        "role": "primary",
+        "displayName": "Dark Accent"
+      },
+      "dark-on-accent": {
+        "role": "primary",
+        "displayName": "Dark On Accent"
+      },
+      "dark-error": {
+        "role": "neutral",
+        "displayName": "Dark Error"
+      },
+      "dark-warning": {
+        "role": "neutral",
+        "displayName": "Dark Warning"
+      },
+      "dark-selection": {
+        "role": "primary",
+        "displayName": "Dark Selection"
+      },
+      "dark-selection-border": {
+        "role": "primary",
+        "displayName": "Dark Selection Border"
+      },
+      "light-background": {
+        "role": "neutral",
+        "displayName": "Light Background"
+      },
+      "light-surface": {
+        "role": "neutral",
+        "displayName": "Light Surface"
+      },
+      "light-raised": {
+        "role": "neutral",
+        "displayName": "Light Raised"
+      },
+      "light-text": {
+        "role": "neutral",
+        "displayName": "Light Text"
+      },
+      "light-muted": {
+        "role": "neutral",
+        "displayName": "Light Muted"
+      },
+      "light-subtle": {
+        "role": "neutral",
+        "displayName": "Light Subtle"
+      },
+      "light-border": {
+        "role": "neutral",
+        "displayName": "Light Border"
+      },
+      "light-accent": {
+        "role": "primary",
+        "displayName": "Light Accent"
+      },
+      "light-on-accent": {
+        "role": "primary",
+        "displayName": "Light On Accent"
+      },
+      "light-error": {
+        "role": "neutral",
+        "displayName": "Light Error"
+      },
+      "light-warning": {
+        "role": "neutral",
+        "displayName": "Light Warning"
+      },
+      "light-selection": {
+        "role": "primary",
+        "displayName": "Light Selection"
+      },
+      "light-selection-border": {
+        "role": "primary",
+        "displayName": "Light Selection Border"
+      },
+      "poster-save-scrim": {
+        "role": "neutral",
+        "displayName": "Poster Save Scrim"
+      },
+      "poster-rating-scrim": {
+        "role": "neutral",
+        "displayName": "Poster Rating Scrim"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Primary screen titles."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Appearance and library section headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Ordinary native text."
+      },
+      "card-title": {
+        "displayName": "Card Title",
+        "purpose": "Poster caption titles."
+      },
+      "button-label": {
+        "displayName": "Button Label",
+        "purpose": "Shared primary and secondary buttons."
+      },
+      "option-label": {
+        "displayName": "Option Label",
+        "purpose": "Appearance option labels."
+      },
+      "caption": {
+        "displayName": "Caption",
+        "purpose": "Supporting metadata."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "press-scale",
+        "value": "0.97",
+        "purpose": "Shared Button and IconButton press feedback; disabled by reduced motion."
+      },
+      {
+        "name": "press-in",
+        "value": "90ms",
+        "purpose": "Shared action press-in timing."
+      },
+      {
+        "name": "press-out",
+        "value": "180ms",
+        "purpose": "Shared action return timing."
+      },
+      {
+        "name": "press-easing",
+        "value": "Easing.out(Easing.cubic)",
+        "purpose": "Native easing from usePressFeedback in ui.tsx."
+      },
+      {
+        "name": "poster-reveal",
+        "value": "160ms",
+        "purpose": "MovieCard and detail artwork; 0 with reduced motion."
+      },
+      {
+        "name": "featured-reveal",
+        "value": "200ms",
+        "purpose": "FeaturedMovie artwork; 0 with reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "grid-three-columns-content",
+        "value": "620px"
+      },
+      {
+        "name": "feature-and-watchlist-window",
+        "value": "700px"
+      },
+      {
+        "name": "detail-window",
+        "value": "760px"
+      },
+      {
+        "name": "grid-four-columns-content",
+        "value": "900px"
+      },
+      {
+        "name": "navigation-rail-window",
+        "value": "1000px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary button",
+      "kind": "button",
+      "description": "Shared native Button in dark and light appearance; src/components/ui.tsx.",
+      "html": "<button class=\"ds-button-primary\">Load more titles</button> <button class=\"ds-button-primary ds-button-primary-light\">Load more titles</button>",
+      "css": ".ds-button-primary { min-height:50px; padding:13px 22px; border:0; border-radius:28px; background:#D5ED86; color:#18220C; font-family:DMSans_700Bold, 'DM Sans', sans-serif; font-size:14px; line-height:22px; cursor:pointer; } .ds-button-primary-light { background:#365A20; color:#FFFFFF; } .ds-button-primary:focus-visible { outline:auto; } .ds-button-primary:active { opacity:0.72; transform:scale(0.97); } .ds-button-primary:disabled { opacity:0.45; } @media (prefers-reduced-motion: reduce) { .ds-button-primary:active { transform:none; } }",
+      "refersTo": "button-primary-dark"
+    },
+    {
+      "name": "Secondary button",
+      "kind": "button",
+      "description": "Shared native Button in dark and light appearance; src/components/ui.tsx.",
+      "html": "<button class=\"ds-button-secondary\">Load more titles</button> <button class=\"ds-button-secondary ds-button-secondary-light\">Load more titles</button>",
+      "css": ".ds-button-secondary { min-height:50px; padding:13px 22px; border:0; border-radius:28px; background:#242C25; color:#F5F3E9; font-family:DMSans_700Bold, 'DM Sans', sans-serif; font-size:14px; line-height:22px; cursor:pointer; } .ds-button-secondary-light { background:#E3E8D9; color:#182217; } .ds-button-secondary:focus-visible { outline:auto; } .ds-button-secondary:active { opacity:0.72; transform:scale(0.97); } .ds-button-secondary:disabled { opacity:0.45; } @media (prefers-reduced-motion: reduce) { .ds-button-secondary:active { transform:none; } }",
+      "refersTo": "button-secondary-dark"
+    },
+    {
+      "name": "Collection name field",
+      "kind": "input",
+      "description": "Shared collection creation/rename field in PersonalActions, Library and collection detail.",
+      "html": "<input class=\"ds-collection-input\" aria-label=\"Collection name\" placeholder=\"e.g. Weekend watch\" maxlength=\"40\">",
+      "css": ".ds-collection-input { box-sizing:border-box; min-height:52px; padding:12px 14px; border:1px solid #333D33; border-radius:10px; color:#F5F3E9; background:#1B211C; font-family:DMSans_400Regular, 'DM Sans', sans-serif; font-size:15px; } .ds-collection-input::placeholder { color:#899685; } .ds-collection-input:focus-visible { outline:auto; } .ds-collection-input::selection { color:#F5F3E9; background:#D5ED86; }",
+      "refersTo": "collection-input-dark"
+    },
+    {
+      "name": "Movies / Series selector",
+      "kind": "nav",
+      "description": "Surface container and filled catalog selection from CatalogSelector.tsx.",
+      "html": "<div class=\"ds-catalog\" role=\"tablist\" aria-label=\"Catalog\"><button class=\"ds-catalog-option\" role=\"tab\" aria-selected=\"true\">Movies</button><button class=\"ds-catalog-option\" role=\"tab\" aria-selected=\"false\">Series</button></div>",
+      "css": ".ds-catalog { display:inline-flex; padding:4px; border-radius:28px; background:#1B211C; } .ds-catalog-option { min-height:48px; min-width:108px; padding:0 24px; border:0; border-radius:24px; font-family:DMSans_700Bold, 'DM Sans', sans-serif; font-size:16px; line-height:22px; background:transparent; color:#A6B0A4; cursor:pointer; } .ds-catalog-option[aria-selected=\"true\"] { background:#D5ED86; color:#18220C; } .ds-catalog-option:focus-visible { outline:auto; }"
+    },
+    {
+      "name": "Appearance choice",
+      "kind": "chip",
+      "description": "Light palette option appearance from ThemeSelector.tsx; icons are omitted from this label-only specimen.",
+      "html": "<div class=\"ds-appearance\" role=\"radiogroup\" aria-label=\"Appearance\"><button class=\"ds-appearance-option\" role=\"radio\" aria-checked=\"false\">System</button><button class=\"ds-appearance-option\" role=\"radio\" aria-checked=\"true\">Light</button><button class=\"ds-appearance-option\" role=\"radio\" aria-checked=\"false\">Dark</button></div>",
+      "css": ".ds-appearance { display:flex; gap:8px; flex-wrap:wrap; } .ds-appearance-option { min-height:48px; min-width:90px; padding:12px 16px; border:0; border-radius:24px; background:#E3E8D9; color:#182217; font-family:DMSans_500Medium, 'DM Sans', sans-serif; font-size:13px; line-height:22px; cursor:pointer; } .ds-appearance-option[aria-checked=\"true\"] { background:#365A20; color:#FFFFFF; } .ds-appearance-option:active { opacity:0.75; } .ds-appearance-option:disabled { opacity:0.5; } .ds-appearance-option:focus-visible { outline:auto; }",
+      "refersTo": "appearance-option-selected-light"
+    },
+    {
+      "name": "Language filter",
+      "kind": "chip",
+      "description": "Outlined catalog-language pills from CatalogSelector.tsx.",
+      "html": "<button class=\"ds-language\" aria-pressed=\"false\">All languages</button> <button class=\"ds-language\" aria-pressed=\"true\">Telugu</button>",
+      "css": ".ds-language { min-height:48px; padding:0 16px; border:1px solid #333D33; border-radius:24px; background:transparent; color:#A6B0A4; font-family:DMSans_500Medium, 'DM Sans', sans-serif; font-size:13px; line-height:22px; cursor:pointer; } .ds-language[aria-pressed=\"true\"] { background:#242C25; border-color:#F5F3E9; color:#F5F3E9; } .ds-language:focus-visible { outline:auto; }"
+    },
+    {
+      "name": "Library navigation",
+      "kind": "nav",
+      "description": "Equally sized Collections / Your ratings / Stats tabs from app/(tabs)/library.tsx.",
+      "html": "<div class=\"ds-library-tabs\" role=\"tablist\" aria-label=\"Library\"><button class=\"ds-library-tab\" role=\"tab\" aria-selected=\"true\">Collections</button><button class=\"ds-library-tab\" role=\"tab\" aria-selected=\"false\">Your ratings</button><button class=\"ds-library-tab\" role=\"tab\" aria-selected=\"false\">Stats</button></div>",
+      "css": ".ds-library-tabs { display:flex; gap:6px; } .ds-library-tab { flex:1; min-height:50px; padding:0 6px; border:0; border-radius:25px; background:#1B211C; color:#F5F3E9; font-family:DMSans_600SemiBold,\"DM Sans\",sans-serif; font-size:12px; line-height:18px; cursor:pointer; } .ds-library-tab[aria-selected=\"true\"] { background:#D5ED86; color:#18220C; } .ds-library-tab:active { opacity:0.65; } .ds-library-tab:focus-visible { outline:auto; }"
+    },
+    {
+      "name": "Poster placeholder",
+      "kind": "card",
+      "description": "Text-only placeholder specimen of MovieCard.tsx; width is supplied by the grid. No fictional poster or score is added.",
+      "html": "<article class=\"ds-poster-card\"><button class=\"ds-poster\" aria-label=\"View title\"><span class=\"ds-poster-placeholder\">Title</span></button><div class=\"ds-poster-caption\"><div class=\"ds-poster-title\">Title</div><div class=\"ds-poster-meta\">Series</div></div></article>",
+      "css": ".ds-poster { display:flex; width:100%; aspect-ratio:2/3; align-items:center; justify-content:center; padding:16px; overflow:hidden; border:0; border-radius:12px; background:#242C25; cursor:pointer; } .ds-poster-placeholder { color:#A6B0A4; text-align:center; font-family:DMSans_400Regular, 'DM Sans', sans-serif; font-size:12px; line-height:22px; } .ds-poster:active { opacity:0.8; } .ds-poster:focus-visible { outline:auto; } .ds-poster-caption { padding-top:10px; min-height:70px; } .ds-poster-title { color:#F5F3E9; font-family:DMSans_600SemiBold,\"DM Sans\",sans-serif; font-size:14px; line-height:20px; } .ds-poster-meta { margin-top:3px; color:#A6B0A4; font-family:DMSans_400Regular, 'DM Sans', sans-serif; font-size:12px; line-height:19px; }",
+      "refersTo": "poster-card-dark"
+    },
+    {
+      "name": "Cinema statistic row",
+      "kind": "custom",
+      "description": "Label/value and divider treatment from Library; the empty rating state uses no invented statistics.",
+      "html": "<div class=\"ds-stat-row\"><span class=\"ds-stat-label\">Your average rating</span><span class=\"ds-stat-value\">Not rated yet</span></div>",
+      "css": ".ds-stat-row { box-sizing:border-box; display:flex; min-height:54px; justify-content:space-between; align-items:center; gap:20px; padding:12px 0; border-bottom:1px solid #333D33; } .ds-stat-label { color:#F5F3E9; font-family:DMSans_400Regular, 'DM Sans', sans-serif; font-size:14px; line-height:22px; flex-shrink:1; } .ds-stat-value { color:#D5ED86; font-family:DMSans_600SemiBold,\"DM Sans\",sans-serif; font-size:15px; line-height:22px; flex-shrink:0; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "A cinematheque’s programme",
+    "overview": "Frame borrows the quiet confidence of a cinematheque’s programme: warm paper-colored text, ink-dark surfaces for evening browsing, generous editorial type and untinted film artwork. Light appearance carries that same identity onto warm paper, pale green surfaces and forest-green actions. Lime remains the dark appearance’s signal for selection and meaningful actions.\n\nThe product is a browsing tool, so navigation and feedback stay predictable. Real posters lead; editorial headings introduce the collection, while DM Sans keeps controls, metadata, ratings and personal lists easy to scan. Collections and statistics extend the same visual language through simple rows, rules and restrained accent marks.",
+    "keyCharacteristics": [
+      "Editorial serif headings with practical sans-serif controls.",
+      "Paired dark and light palettes with the same semantic color roles.",
+      "Real, untinted artwork with consistently dark poster overlays.",
+      "Rounded controls, flat surfaces and clear selection states.",
+      "Phone-first touch targets with responsive wider layouts."
+    ],
+    "rules": [
+      {
+        "name": "The Artwork Rule",
+        "body": "Keep poster artwork untinted and preserve dark scrims with light text and lime marks across both appearances.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reading Rule",
+        "body": "Keep serif type for editorial hierarchy and sans-serif type for actions, ratings, counts and supporting information.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do use the active palette through `useTheme()` and `useThemedStyles()` for new UI.",
+      "Do keep the dark poster overlay, light text and lime save/rating marks in both appearances.",
+      "Do keep action targets at least 48 logical units and retain native labels, selected states and text scaling.",
+      "Do preserve loaded cards during refresh and place retry feedback beside the failed operation.",
+      "Do distinguish catalog scores out of 10 from personal ratings out of 5.",
+      "Do derive collection counts and cinema statistics from the actual saved data."
+    ],
+    "donts": [
+      "Don’t tint or recolor the film artwork to match either appearance.",
+      "Don’t introduce decorative shadows into the existing flat surface system.",
+      "Don’t animate press scaling, image transitions or stack navigation when reduced motion is enabled.",
+      "Don’t invent ratings, availability, season groups, cast, or account capabilities.",
+      "Don’t make appearance changes reset the current navigation or saved personal library."
+    ]
+  }
+}

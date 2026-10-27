@@ -1,11 +1,13 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { useWatchlist } from '../state/WatchlistProvider';
-import { colors, fonts } from '../theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../theme';
 import type { Movie } from '../types/movie';
 import { AppText, Button, Icon } from './ui';
 
 /** Viewing plans are independent of the films someone keeps as favourites. */
 export function WatchlistControls({ movie }: { movie: Movie }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { getStatus, setStatus, removeMovie, isHydrated } = useWatchlist();
   const status = getStatus(movie.id);
   return (
@@ -57,26 +59,27 @@ export function WatchlistControls({ movie }: { movie: Movie }) {
   );
 }
 
-const styles = StyleSheet.create({
-  section: {
-    marginTop: 28,
-    paddingVertical: 24,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-  },
-  heading: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  title: { fontFamily: fonts.display, fontSize: 27, lineHeight: 32, flex: 1 },
-  description: { color: colors.muted, fontSize: 13, lineHeight: 20, marginTop: 8 },
-  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 18 },
-  mainAction: { flexGrow: 1 },
-  quietAction: {
-    minHeight: 48,
-    paddingHorizontal: 12,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexGrow: 1,
-  },
-  quietText: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium },
-  dimmed: { opacity: 0.5 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    section: {
+      marginTop: 28,
+      paddingVertical: 24,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+    },
+    heading: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    title: { fontFamily: fonts.display, fontSize: 27, lineHeight: 32, flex: 1 },
+    description: { color: colors.muted, fontSize: 13, lineHeight: 20, marginTop: 8 },
+    actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 18 },
+    mainAction: { flexGrow: 1 },
+    quietAction: {
+      minHeight: 48,
+      paddingHorizontal: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      flexGrow: 1,
+    },
+    quietText: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium },
+    dimmed: { opacity: 0.5 },
+  });

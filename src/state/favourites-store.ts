@@ -17,11 +17,22 @@ export interface FavouritesSnapshot {
 export function isMovie(value: unknown): value is Movie {
   if (!value || typeof value !== 'object') return false;
   const movie = value as Record<string, unknown>;
-  const id = typeof movie.id === 'string' ? /^(jikan|tmdb)-([1-9]\d*)$/.exec(movie.id) : null;
+  const id = typeof movie.id === 'string' ? /^(jikan|tmdb)-(tv-)?([1-9]\d*)$/.exec(movie.id) : null;
   return (
     id !== null &&
     id[1] === movie.provider &&
-    Number.isSafeInteger(Number(id[2])) &&
+    Number.isSafeInteger(Number(id[3])) &&
+    !(id[1] === 'jikan' && id[2]) &&
+    (movie.mediaType === undefined ||
+      movie.mediaType === 'movie' ||
+      movie.mediaType === 'series') &&
+    (!id[2] || movie.mediaType === undefined || movie.mediaType === 'series') &&
+    (movie.status === undefined || typeof movie.status === 'string') &&
+    [movie.episodeCount, movie.seasonCount].every(
+      (count) =>
+        count === undefined ||
+        (typeof count === 'number' && Number.isSafeInteger(count) && count >= 0),
+    ) &&
     typeof movie.title === 'string' &&
     movie.title.trim().length > 0 &&
     (movie.posterUrl === null || safeUrl(movie.posterUrl) !== undefined) &&

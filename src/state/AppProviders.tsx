@@ -7,6 +7,8 @@ import { FavouritesProvider } from './FavouritesProvider';
 import { NetworkProvider } from './NetworkProvider';
 import { WatchlistProvider } from './WatchlistProvider';
 import { CommunityProvider } from './CommunityProvider';
+import { LibraryProvider } from './LibraryProvider';
+import { BrowseProvider } from './BrowseProvider';
 import {
   QUERY_STORAGE_KEY,
   serializeQueryCache,
@@ -65,7 +67,11 @@ export function AppProviders({ children }: PropsWithChildren) {
       >
         <FavouritesProvider>
           <WatchlistProvider>
-            <CommunityProvider>{children}</CommunityProvider>
+            <CommunityProvider>
+              <LibraryProvider>
+                <BrowseProvider>{children}</BrowseProvider>
+              </LibraryProvider>
+            </CommunityProvider>
           </WatchlistProvider>
         </FavouritesProvider>
       </PersistQueryClientProvider>

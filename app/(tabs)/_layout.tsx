@@ -1,10 +1,12 @@
 import { Tabs } from 'expo-router';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, fonts } from '../../src/theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../../src/theme';
 import { Icon, type IconName } from '../../src/components/ui';
 
 function TabIcon({ name, focused }: { name: IconName; focused: boolean }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   return (
     <View style={[styles.icon, focused && styles.active]}>
       <Icon name={name} size={21} color={focused ? colors.accent : colors.muted} />
@@ -12,6 +14,7 @@ function TabIcon({ name, focused }: { name: IconName; focused: boolean }) {
   );
 }
 export default function TabsLayout() {
+  const { colors } = useTheme();
   const { width } = useWindowDimensions();
   const insets = useSafeAreaInsets();
   const wide = width >= 1000;
@@ -84,10 +87,26 @@ export default function TabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="library"
+        options={{
+          title: 'Library',
+          tabBarIcon: ({ focused }) => (
+            <TabIcon name={focused ? 'library' : 'library-outline'} focused={focused} />
+          ),
+        }}
+      />
     </Tabs>
   );
 }
-const styles = StyleSheet.create({
-  icon: { width: 54, height: 29, borderRadius: 16, justifyContent: 'center', alignItems: 'center' },
-  active: { backgroundColor: '#2C3821' },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    icon: {
+      width: 54,
+      height: 29,
+      borderRadius: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    active: { backgroundColor: colors.selection },
+  });

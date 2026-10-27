@@ -151,11 +151,27 @@ describe('durable favourites', () => {
       { posterUrl: 'https://user:password@example.com/poster.jpg' },
       { provider: 'tmdb' },
       { id: 'jikan-9007199254740993' },
+      { id: 'jikan-tv-1' },
+      { mediaType: 'podcast' },
+      { episodeCount: -1 },
+      { seasonCount: 2.5 },
     ];
     for (const fields of invalidFields) {
       expect(() =>
         decodeFavourites(JSON.stringify({ version: 1, movies: [{ ...first, ...fields }] })),
       ).toThrow();
     }
+  });
+
+  it('restores legacy movies together with series without changing saved IDs', () => {
+    const series: Movie = {
+      ...second,
+      id: 'tmdb-tv-2',
+      mediaType: 'series',
+      episodeCount: 12,
+      seasonCount: 1,
+    };
+    expect(decodeFavourites(envelope([first, second, series]))).toEqual([first, second, series]);
+    expect(() => decodeFavourites(envelope([{ ...series, mediaType: 'movie' }]))).toThrow();
   });
 });

@@ -3,20 +3,25 @@ import { ActivityIndicator, Pressable, StyleSheet, TextInput, View } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDebouncedValue, useMovieSearch, flattenMovies } from '../../src/hooks';
 import { catalog } from '../../src/api/movies';
-import { useNetworkStatus } from '../../src/state';
-import { colors, fonts } from '../../src/theme';
+import { useBrowse, useNetworkStatus } from '../../src/state';
+import { CatalogSelector } from '../../src/components/CatalogSelector';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../../src/theme';
 import { AppText, Icon, IconButton, StateView } from '../../src/components/ui';
 import { MovieGrid } from '../../src/components/MovieGrid';
-import { ScreenHeader, StatusNotices, screenStyles } from '../../src/components/Shell';
+import { ScreenHeader, StatusNotices, useScreenStyles } from '../../src/components/Shell';
 
 export default function SearchScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
+  const screenStyles = useScreenStyles();
   const [input, setInput] = useState('');
   const [focused, setFocused] = useState(false);
   const field = useRef<ComponentRef<typeof TextInput>>(null);
   const term = useDebouncedValue(input.trim(), 350);
   const active = input.trim().length >= 2;
   const debouncing = active && input.trim() !== term;
-  const query = useMovieSearch(term);
+  const browse = useBrowse();
+  const query = useMovieSearch(term, browse);
   const { isOnline } = useNetworkStatus();
   const movies = useMemo(
     () => (active && !debouncing ? flattenMovies(query.data) : []),
@@ -29,16 +34,20 @@ export default function SearchScreen() {
     if (!query.isFetching && !debouncing) void query.fetchNextPage();
   }, [query, debouncing]);
   const suggestions =
-    catalog.id === 'jikan'
-      ? ['Spirited Away', 'Your Name', 'Akira', 'Howl']
-      : ['Interstellar', 'The Grand Budapest Hotel', 'Dune', 'Past Lives'];
+    browse.mediaType === 'series'
+      ? catalog.id === 'jikan'
+        ? ['Frieren', 'Cowboy Bebop', 'Spy x Family', 'One Piece']
+        : ['Severance', 'The Bear', 'Breaking Bad', 'Dark']
+      : catalog.id === 'jikan'
+        ? ['Spirited Away', 'Your Name', 'Akira', 'Howl']
+        : ['Interstellar', 'The Grand Budapest Hotel', 'Dune', 'Past Lives'];
   return (
     <SafeAreaView edges={['top', 'left', 'right']} style={screenStyles.screen}>
       <View style={styles.top}>
         <ScreenHeader />
         <StatusNotices />
         <AppText accessibilityRole="header" style={[screenStyles.title, { marginTop: 0 }]}>
-          Find a film.
+          Find {browse.mediaType === 'series' ? 'a series' : 'a film'}.
         </AppText>
         <AppText style={screenStyles.subtitle}>
           A title in mind? Let’s find your next story.
@@ -51,8 +60,10 @@ export default function SearchScreen() {
             onBlur={() => setFocused(false)}
             value={input}
             onChangeText={setInput}
-            accessibilityLabel="Search movies"
-            placeholder="Search film titles…"
+            accessibilityLabel="Search movies and series"
+            placeholder={
+              browse.mediaType === 'series' ? 'Search series titles…' : 'Search movie titles…'
+            }
             placeholderTextColor={colors.muted}
             style={styles.input}
             autoCapitalize="none"
@@ -75,9 +86,11 @@ export default function SearchScreen() {
             />
           ) : null}
         </View>
+        <CatalogSelector />
       </View>
       <MovieGrid
-        key={`search-${term}`}
+        key={`search-${term}-${browse.mediaType}-${browse.language}`}
+        autoLoadMore={browse.language === 'all'}
         movies={movies}
         loading={active && (debouncing || query.isPending)}
         error={active && !debouncing ? query.error : null}
@@ -98,8 +111,8 @@ export default function SearchScreen() {
                   {!isOnline && !movies.length
                     ? 'Reconnect to search this collection.'
                     : debouncing || query.isPending
-                      ? 'Finding your films…'
-                      : `${movies.length} ${movies.length === 1 ? 'film' : 'films'}${query.hasNextPage ? ' and more' : ''} for “${term}”`}
+                      ? 'Finding your stories…'
+                      : `${movies.length} ${movies.length === 1 ? 'title' : 'titles'}${query.hasNextPage ? ' and more' : ''} for “${term}”`}
                 </AppText>
                 {query.isFetching && !query.isPending && (
                   <ActivityIndicator size="small" color={colors.accent} />
@@ -116,8 +129,14 @@ export default function SearchScreen() {
           active ? (
             <StateView
               icon="search-outline"
-              title="A plot twist. No results."
-              description={`We couldn’t find “${term}” in ${catalog.name.toLowerCase()}. Try a shorter title or a different spelling.`}
+              title={
+                query.hasNextPage ? 'No matches in these results.' : 'A plot twist. No results.'
+              }
+              description={
+                query.hasNextPage
+                  ? 'No titles match your language in the pages loaded so far. Load more below, or try All languages.'
+                  : `We couldn’t find “${term}” in this selection. Try All languages, a shorter title or a different spelling.`
+              }
               action="Clear search"
               onAction={() => {
                 setInput('');
@@ -144,8 +163,8 @@ export default function SearchScreen() {
                 title="So many worlds to explore."
                 description={
                   catalog.id === 'jikan'
-                    ? 'From Studio Ghibli classics to bold new animation. Search by film title to find your way in.'
-                    : 'From familiar favourites to something completely unexpected. Search by film title.'
+                    ? 'From Studio Ghibli classics to bold new animation. Search by title to find your way in.'
+                    : 'From familiar favourites to something completely unexpected. Search by title.'
                 }
                 compact
               />
@@ -157,48 +176,49 @@ export default function SearchScreen() {
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  top: { width: '100%', maxWidth: 1180, alignSelf: 'center', paddingHorizontal: 24 },
-  searchBox: {
-    marginTop: 22,
-    marginBottom: 20,
-    minHeight: 56,
-    borderRadius: 14,
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: colors.border,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingLeft: 16,
-    gap: 11,
-  },
-  input: {
-    flex: 1,
-    fontFamily: fonts.regular,
-    fontSize: 15,
-    color: colors.text,
-    paddingVertical: 16,
-    minHeight: 54,
-    outlineWidth: 0,
-  },
-  clear: { backgroundColor: 'transparent', marginRight: 4 },
-  resultsHeader: {
-    minHeight: 40,
-    paddingBottom: 16,
-    flexDirection: 'row',
-    gap: 10,
-    alignItems: 'center',
-  },
-  resultsText: { flex: 1, color: colors.muted, fontSize: 12, fontFamily: fonts.medium },
-  suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  suggestion: {
-    minHeight: 48,
-    paddingHorizontal: 16,
-    borderRadius: 24,
-    backgroundColor: colors.raised,
-    flexDirection: 'row',
-    gap: 8,
-    alignItems: 'center',
-  },
-  suggestionText: { fontSize: 13 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    top: { width: '100%', maxWidth: 1180, alignSelf: 'center', paddingHorizontal: 24 },
+    searchBox: {
+      marginTop: 22,
+      marginBottom: 20,
+      minHeight: 56,
+      borderRadius: 14,
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: colors.border,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingLeft: 16,
+      gap: 11,
+    },
+    input: {
+      flex: 1,
+      fontFamily: fonts.regular,
+      fontSize: 15,
+      color: colors.text,
+      paddingVertical: 16,
+      minHeight: 54,
+      outlineWidth: 0,
+    },
+    clear: { backgroundColor: 'transparent', marginRight: 4 },
+    resultsHeader: {
+      minHeight: 40,
+      paddingBottom: 16,
+      flexDirection: 'row',
+      gap: 10,
+      alignItems: 'center',
+    },
+    resultsText: { flex: 1, color: colors.muted, fontSize: 12, fontFamily: fonts.medium },
+    suggestions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
+    suggestion: {
+      minHeight: 48,
+      paddingHorizontal: 16,
+      borderRadius: 24,
+      backgroundColor: colors.raised,
+      flexDirection: 'row',
+      gap: 8,
+      alignItems: 'center',
+    },
+    suggestionText: { fontSize: 13 },
+  });

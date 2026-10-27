@@ -1,16 +1,16 @@
 # Validation record
 
-This record distinguishes completed checks from scenarios that still need a native device or an authenticated build environment. The app was exercised with the live Tenrai animated-film catalog. TMDB adapter tests used mocked responses.
+This record distinguishes completed checks from scenarios that still need a native device or an authenticated build environment. The app was exercised with the live Tenrai animated movie and series catalog. TMDB adapter tests used mocked responses.
 
 ## Automated checks
 
-| Check | Result |
-| --- | --- |
-| `npm run typecheck` | Passed |
-| `npm run lint` | Passed |
-| `npm run format:check` | Passed |
-| `npm test` | 67 tests passed |
-| `npm run export:web` | Production web export passed |
+| Check                    | Result                                  |
+| ------------------------ | --------------------------------------- |
+| `npm run typecheck`      | Passed                                  |
+| `npm run lint`           | Passed                                  |
+| `npm run format:check`   | Passed                                  |
+| `npm test`               | 123 tests passed                        |
+| `npm run export:web`     | Production web export passed            |
 | `npm run export:android` | Android Hermes JavaScript export passed |
 
 The unit suite covers provider normalization, pagination, malformed API responses, dropped connections, timeouts, cancellation, retry limits, connectivity events, favourites/watchlist hydration, serialized writes, failed storage recovery, corrupted records, Undo timestamp preservation, and bounded query persistence. Discovery tests cover combined filters, unrated films, genre affinity, watched-film exclusion, repeat avoidance, and empty candidate pools. These tests use controlled responses and storage failures; they do not replace an end-to-end airplane-mode test.
@@ -23,32 +23,32 @@ An Android JavaScript export verifies bundling. It does not produce an installab
 
 The interface was checked at **390 × 844** and **1280 × 900**, with the new filter controls also checked at **319 × 760**. These are browser preview dimensions, not native-device runs.
 
-| Scenario | Observed result |
-| --- | --- |
-| Popular and top-rated lists | Both displayed live catalog results |
-| Infinite scroll | Page two loaded, including a Haruhi film |
-| Refresh | Existing content remained visible during refresh |
-| Movie details | Poster, rating, and synopsis displayed for the selected movie |
-| Add favourites | Four movies were saved |
-| Persistence | All four saved movies remained after a full browser reload |
-| Search | `Spirited` returned two live results |
-| Empty search | An unlikely `zzz` query displayed the no-results state |
-| Favourites sorting | A–Z sorting worked |
-| Surprise me | The featured film changed to a pick with an explanation based on favourite genres |
-| Watchlist saving | The Garden of Words was added to Planned from its detail screen |
-| Watched history | Marking that film watched moved it into Watched with a date |
-| Remove and Undo | Undo restored the removed entry with its watched status and date |
-| Watchlist persistence | The watched entry remained after a full browser reload |
-| Watchlist layouts | Two planned films and one watched film displayed correctly in phone and desktop layouts |
-| Hide watched | The loaded collection changed from 48 to 47 matching films |
-| Combined filters | Fantasy, rated 8+, and hide watched produced 14 matches from 48 loaded films |
-| Demo sign-in | Empty name and malformed email showed validation; valid details returned to the previous screen |
-| Comment shortcut | The detail-screen comment button scrolled to the discussion/composer |
-| Posting | A comment appeared under the local profile, and the composer cleared |
-| Comment removal and Undo | The removed comment returned with its original author and timestamp |
-| Spoilers | A spoiler comment stayed hidden until revealed, could be hidden again, and was hidden after reload |
-| Session and comment persistence | The local sign-in and two comments survived a full browser reload |
-| Sign-out and return | Guests could read comments but had no deletion controls; signing back in with a case-varied version of the same email restored ownership |
+| Scenario                        | Observed result                                                                                                                          |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| Popular and top-rated lists     | Both displayed live catalog results                                                                                                      |
+| Infinite scroll                 | Page two loaded, including a Haruhi film                                                                                                 |
+| Refresh                         | Existing content remained visible during refresh                                                                                         |
+| Movie details                   | Poster, rating, and synopsis displayed for the selected movie                                                                            |
+| Add favourites                  | Four movies were saved                                                                                                                   |
+| Persistence                     | All four saved movies remained after a full browser reload                                                                               |
+| Search                          | `Spirited` returned two live results                                                                                                     |
+| Empty search                    | An unlikely `zzz` query displayed the no-results state                                                                                   |
+| Favourites sorting              | A–Z sorting worked                                                                                                                       |
+| Surprise me                     | The featured film changed to a pick with an explanation based on favourite genres                                                        |
+| Watchlist saving                | The Garden of Words was added to Planned from its detail screen                                                                          |
+| Watched history                 | Marking that film watched moved it into Watched with a date                                                                              |
+| Remove and Undo                 | Undo restored the removed entry with its watched status and date                                                                         |
+| Watchlist persistence           | The watched entry remained after a full browser reload                                                                                   |
+| Watchlist layouts               | Two planned films and one watched film displayed correctly in phone and desktop layouts                                                  |
+| Hide watched                    | The loaded collection changed from 48 to 47 matching films                                                                               |
+| Combined filters                | Fantasy, rated 8+, and hide watched produced 14 matches from 48 loaded films                                                             |
+| Demo sign-in                    | Empty name and malformed email showed validation; valid details returned to the previous screen                                          |
+| Comment shortcut                | The detail-screen comment button scrolled to the discussion/composer                                                                     |
+| Posting                         | A comment appeared under the local profile, and the composer cleared                                                                     |
+| Comment removal and Undo        | The removed comment returned with its original author and timestamp                                                                      |
+| Spoilers                        | A spoiler comment stayed hidden until revealed, could be hidden again, and was hidden after reload                                       |
+| Session and comment persistence | The local sign-in and two comments survived a full browser reload                                                                        |
+| Sign-out and return             | Guests could read comments but had no deletion controls; signing back in with a case-varied version of the same email restored ownership |
 
 Login was inspected at 390 × 844 and 319 × 760. Profile and comment views were inspected at phone size, and the discussion at 1280 × 900. Synthetic demo data (`Movie Fan`, `cinema@example.com`) was used for these checks; no real account or shared comment service was contacted.
 
@@ -57,6 +57,32 @@ Login/comment captures: [sign-in](screenshots/login.jpg), [compact sign-in](scre
 Current screenshots: [Discover](screenshots/discover-v2.jpg), [filters](screenshots/filters.jpg), [compact phone filters](screenshots/filters-small.jpg), [Watchlist](screenshots/watchlist.jpg), [watchlist controls in details](screenshots/watchlist-controls.jpg), [desktop Watchlist](screenshots/watchlist-desktop.jpg), and [desktop Discover](screenshots/desktop-v2.jpg). Earlier core-flow captures remain available for [details](screenshots/details.jpg), [search](screenshots/search.jpg), [favourites](screenshots/favourites.jpg), and [empty search](screenshots/empty-search.jpg).
 
 The [original two-minute recording](frame-demo.mp4) predates the discovery, filter, watchlist, and local login/comment additions. It captures the core phone-sized web experience at 4 fps with inactive gaps compressed; it is not a native APK demonstration. Screenshots capture individual moments, so counts can differ from later persistence checks.
+
+## Expanded cinema library — October 27, 2026
+
+The six-feature extension passed TypeScript, ESLint, formatting, 123 unit tests, web production export, and Android Hermes export. The Android bundle is not a native device run or APK. The added `expo-system-ui` dependency and automatic appearance configuration support the System theme choice in native builds.
+
+| Scenario               | Observed result                                                                                                                                           |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Movie/series selector  | Movies and TV series returned separate live Tenrai feeds; series cards and details identify the type                                                      |
+| Series search          | A debounced `Frieren` search returned three real series entries                                                                                           |
+| Cast and crew          | Attack on Titan showed real directors and Japanese voice actors with images                                                                               |
+| Related titles         | More like this displayed live recommendation cards; incomplete recommendation snapshots require opening details before saving                             |
+| Episode browsing       | Attack on Titan showed 25 real episodes; page 1 rendered 20 and page 2 rendered the remaining five, with Next disabled at the end                         |
+| Personal rating        | Four stars appeared immediately, marked the title watched, and remained in Your ratings after a full reload                                               |
+| Custom collections     | Created Weekend watch from details, added a series, renamed it Weekend stories, removed/restored membership, and restored the entire collection with Undo |
+| Collection persistence | Renamed collection and restored membership survived a full browser reload                                                                                 |
+| Cinema stats           | Counts, movie/series split, genre frequency, and 4.0/5 personal average reflected the test actions and existing watch history                             |
+| Appearance             | Light and dark applied throughout navigation, cards, fields, details, and Library; dark preference survived reload                                        |
+| Existing data          | Existing favourites, watchlist items, and demo profile remained present after the changes                                                                 |
+
+Screenshots were inspected at 390×844, 319×760, and 1280×900. A fresh reviewer inspected the screenshots and source, requested a 48×48 Retry/Undo target, then scored that fix **resolved** with **ship at web-preview scope**. No native-device sign-off is claimed. Temporary test ratings, watched entry, and collection were removed after verification; screenshot counts represent the test session.
+
+New captures: [light Discover](screenshots/discover-light.jpg), [series](screenshots/series.jpg), [Library](screenshots/personal-library.jpg), [ratings](screenshots/ratings.jpg), [stats](screenshots/cinema-stats.jpg), [cast](screenshots/cast.jpg), [episodes](screenshots/episodes.jpg), [compact collection](screenshots/collection-small.jpg), [collection Undo](screenshots/collection-undo.jpg), and [desktop Library](screenshots/desktop-library.jpg).
+
+New tests cover TMDB movie/TV ID isolation, original-language discovery/search paging, credits, recommendations, season/episode normalization, alternative anime detail types, personal rating bounds, collection validation/Undo, corrupted storage preservation, serialized writes/recovery, real derived stats, theme preference/contrast, legacy saved-film compatibility, and separate movie/series comment persistence. Live Tenrai requests confirmed recommendations can include ONA titles such as Cyberpunk: Edgerunners; those detail links now normalize correctly.
+
+TMDB language controls are implemented but live verification remains pending the user's token. Anime seasons are independent catalog entries; missing provider information is shown as unavailable. Native appearance changes, large-text behavior, reduced motion, and airplane-mode cold launch still need device verification.
 
 ## Not completed
 

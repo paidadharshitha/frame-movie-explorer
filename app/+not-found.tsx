@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StateView } from '../src/components/ui';
-import { colors } from '../src/theme';
+import { useTheme } from '../src/theme';
 export default function NotFound() {
+  const { colors } = useTheme();
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: colors.background, justifyContent: 'center' }}>
       <StateView

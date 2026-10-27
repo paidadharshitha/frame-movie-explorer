@@ -49,6 +49,20 @@ function idFactory() {
 }
 
 describe('local demo profiles and comments', () => {
+  it('keeps movie and series discussions distinct across a restart', async () => {
+    const storage = storageWith(envelope([profile], []));
+    const store = new CommunityStore(storage, () => 3000, idFactory());
+    await store.hydrate();
+    expect(store.addComment('tmdb-55', 'The film review.', false)).toBeNull();
+    expect(store.addComment('tmdb-tv-55', 'The series review.', true)).toBeNull();
+    expect(store.addComment('jikan-tv-55', 'Invalid ID.', false)).not.toBeNull();
+    await store.retrySave();
+    const restored = decodeCommunity(storage.setItem.mock.calls.at(-1)![1]);
+    expect(restored.comments.map(({ movieId }) => movieId).sort()).toEqual([
+      'tmdb-55',
+      'tmdb-tv-55',
+    ]);
+  });
   it('blocks every mutation until a complete stored session has loaded', async () => {
     const read = deferred<string | null>();
     const storage = storageWith();

@@ -1,5 +1,11 @@
 import { useEffect } from 'react';
-import { Stack, ThemeProvider, DarkTheme, type ErrorBoundaryProps } from 'expo-router';
+import {
+  Stack,
+  ThemeProvider as NavigationThemeProvider,
+  DarkTheme,
+  DefaultTheme,
+  type ErrorBoundaryProps,
+} from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
@@ -11,11 +17,12 @@ import { InstrumentSerif_400Regular } from '@expo-google-fonts/instrument-serif/
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { ActivityIndicator, View } from 'react-native';
 import { AppProviders } from '../src/state';
-import { colors } from '../src/theme';
+import { ThemeProvider, useTheme } from '../src/theme';
 import { StateView } from '../src/components/ui';
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
 export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
+  const { colors } = useTheme();
   return (
     <SafeAreaView style={{ flex: 1, justifyContent: 'center', backgroundColor: colors.background }}>
       <StateView
@@ -28,7 +35,9 @@ export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
     </SafeAreaView>
   );
 }
-export default function RootLayout() {
+
+function ThemedApp() {
+  const { colors, isDark, reduceMotion } = useTheme();
   const [loaded, error] = useFonts({
     DMSans_400Regular,
     DMSans_500Medium,
@@ -45,37 +54,48 @@ export default function RootLayout() {
         <ActivityIndicator color={colors.accent} accessibilityLabel="Opening Frame" />
       </View>
     );
+  const navigationTheme = isDark ? DarkTheme : DefaultTheme;
   return (
-    <SafeAreaProvider>
-      <AppProviders>
-        <ThemeProvider
-          value={{
-            ...DarkTheme,
-            colors: {
-              ...DarkTheme.colors,
-              primary: colors.accent,
-              background: colors.background,
-              card: colors.surface,
-              text: colors.text,
-              border: colors.border,
-            },
+    <AppProviders>
+      <NavigationThemeProvider
+        value={{
+          ...navigationTheme,
+          colors: {
+            ...navigationTheme.colors,
+            primary: colors.accent,
+            background: colors.background,
+            card: colors.surface,
+            text: colors.text,
+            border: colors.border,
+            notification: colors.accent,
+          },
+        }}
+      >
+        <StatusBar style={isDark ? 'light' : 'dark'} />
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: colors.background },
+            animation: reduceMotion ? 'none' : 'slide_from_right',
           }}
         >
-          <StatusBar style="light" />
-          <Stack
-            screenOptions={{
-              headerShown: false,
-              contentStyle: { backgroundColor: colors.background },
-              animation: 'slide_from_right',
-            }}
-          >
-            <Stack.Screen name="(tabs)" />
-            <Stack.Screen name="movie/[id]" />
-            <Stack.Screen name="about" />
-            <Stack.Screen name="account" />
-          </Stack>
-        </ThemeProvider>
-      </AppProviders>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="movie/[id]" />
+          <Stack.Screen name="about" />
+          <Stack.Screen name="account" />
+          <Stack.Screen name="collection/[id]" />
+        </Stack>
+      </NavigationThemeProvider>
+    </AppProviders>
+  );
+}
+
+export default function RootLayout() {
+  return (
+    <SafeAreaProvider>
+      <ThemeProvider>
+        <ThemedApp />
+      </ThemeProvider>
     </SafeAreaProvider>
   );
 }

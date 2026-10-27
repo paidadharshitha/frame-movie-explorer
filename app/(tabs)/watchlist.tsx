@@ -12,9 +12,9 @@ import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useWatchlist } from '../../src/state/WatchlistProvider';
 import type { WatchlistEntry, WatchlistStatus } from '../../src/state/watchlist-store';
-import { ScreenHeader, StatusNotices, screenStyles } from '../../src/components/Shell';
+import { ScreenHeader, StatusNotices, useScreenStyles } from '../../src/components/Shell';
 import { AppText, Icon, IconButton, StateView } from '../../src/components/ui';
-import { colors, fonts } from '../../src/theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../../src/theme';
 
 const WatchlistRow = memo(function WatchlistRow({
   entry,
@@ -27,6 +27,8 @@ const WatchlistRow = memo(function WatchlistRow({
   onChangeStatus: (entry: WatchlistEntry) => void;
   onRemove: (entry: WatchlistEntry) => void;
 }) {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { movie, status, watchedAt } = entry;
   return (
     <View style={[styles.row, wide && styles.wideRow]}>
@@ -100,6 +102,9 @@ const WatchlistRow = memo(function WatchlistRow({
 });
 
 export default function WatchlistScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
+  const screenStyles = useScreenStyles();
   const { entries, isHydrated, storageError, setStatus, removeMovie, restoreEntry } =
     useWatchlist();
   const [filter, setFilter] = useState<WatchlistStatus>('planned');
@@ -274,99 +279,100 @@ export default function WatchlistScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  content: {
-    paddingHorizontal: 24,
-    paddingBottom: 32,
-    width: '100%',
-    maxWidth: 1000,
-    alignSelf: 'center',
-    flexGrow: 1,
-  },
-  deviceNote: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 7,
-    marginTop: 24,
-    marginBottom: 24,
-  },
-  deviceText: { color: colors.muted, fontSize: 12, lineHeight: 18 },
-  tabs: { flexDirection: 'row', gap: 8, marginBottom: 20 },
-  tab: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    minHeight: 50,
-    borderRadius: 25,
-    gap: 10,
-    backgroundColor: colors.surface,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  activeTab: { backgroundColor: colors.accent },
-  tabText: { fontSize: 14, fontFamily: fonts.semibold },
-  tabCount: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium },
-  activeTabText: { color: colors.onAccent },
-  orderNote: { color: colors.muted, fontSize: 12, marginBottom: 4 },
-  row: { paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 14 },
-  wideRow: { flexDirection: 'row', alignItems: 'center', gap: 24 },
-  film: { flexDirection: 'row', gap: 16, alignItems: 'center', flex: 1 },
-  poster: {
-    width: 72,
-    height: 108,
-    borderRadius: 8,
-    backgroundColor: colors.raised,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  filmInfo: { flex: 1, gap: 5 },
-  filmTitle: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 22 },
-  metadata: { color: colors.muted, fontSize: 12, lineHeight: 18 },
-  lastLine: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
-  statusText: { color: colors.muted, fontSize: 12, lineHeight: 18, flexShrink: 1 },
-  rowActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  wideActions: { width: 230 },
-  statusAction: {
-    flex: 1,
-    minHeight: 48,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-    borderRadius: 24,
-    backgroundColor: colors.surface,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 7,
-  },
-  actionText: { fontFamily: fonts.medium, fontSize: 12, lineHeight: 18, flexShrink: 1 },
-  removeAction: { backgroundColor: 'transparent' },
-  pressed: { opacity: 0.65 },
-  loading: { paddingVertical: 64 },
-  footer: {
-    color: colors.muted,
-    textAlign: 'center',
-    fontSize: 12,
-    paddingTop: 32,
-    paddingBottom: 24,
-  },
-  undo: {
-    position: 'absolute',
-    bottom: 12,
-    left: 24,
-    right: 24,
-    maxWidth: 620,
-    alignSelf: 'center',
-    backgroundColor: colors.raised,
-    borderRadius: 12,
-    paddingLeft: 16,
-    paddingRight: 6,
-    flexDirection: 'row',
-    gap: 12,
-    alignItems: 'center',
-  },
-  undoText: { flex: 1, fontSize: 13, lineHeight: 19, paddingVertical: 12 },
-  undoButton: { minWidth: 64, minHeight: 56, alignItems: 'center', justifyContent: 'center' },
-  undoLabel: { color: colors.accent, fontFamily: fonts.bold, fontSize: 13 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    content: {
+      paddingHorizontal: 24,
+      paddingBottom: 32,
+      width: '100%',
+      maxWidth: 1000,
+      alignSelf: 'center',
+      flexGrow: 1,
+    },
+    deviceNote: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 7,
+      marginTop: 24,
+      marginBottom: 24,
+    },
+    deviceText: { color: colors.muted, fontSize: 12, lineHeight: 18 },
+    tabs: { flexDirection: 'row', gap: 8, marginBottom: 20 },
+    tab: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      minHeight: 50,
+      borderRadius: 25,
+      gap: 10,
+      backgroundColor: colors.surface,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+    },
+    activeTab: { backgroundColor: colors.accent },
+    tabText: { fontSize: 14, fontFamily: fonts.semibold },
+    tabCount: { color: colors.muted, fontSize: 13, fontFamily: fonts.medium },
+    activeTabText: { color: colors.onAccent },
+    orderNote: { color: colors.muted, fontSize: 12, marginBottom: 4 },
+    row: { paddingVertical: 20, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 14 },
+    wideRow: { flexDirection: 'row', alignItems: 'center', gap: 24 },
+    film: { flexDirection: 'row', gap: 16, alignItems: 'center', flex: 1 },
+    poster: {
+      width: 72,
+      height: 108,
+      borderRadius: 8,
+      backgroundColor: colors.raised,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    filmInfo: { flex: 1, gap: 5 },
+    filmTitle: { fontFamily: fonts.semibold, fontSize: 16, lineHeight: 22 },
+    metadata: { color: colors.muted, fontSize: 12, lineHeight: 18 },
+    lastLine: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 3 },
+    statusText: { color: colors.muted, fontSize: 12, lineHeight: 18, flexShrink: 1 },
+    rowActions: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    wideActions: { width: 230 },
+    statusAction: {
+      flex: 1,
+      minHeight: 48,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+      borderRadius: 24,
+      backgroundColor: colors.surface,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 7,
+    },
+    actionText: { fontFamily: fonts.medium, fontSize: 12, lineHeight: 18, flexShrink: 1 },
+    removeAction: { backgroundColor: 'transparent' },
+    pressed: { opacity: 0.65 },
+    loading: { paddingVertical: 64 },
+    footer: {
+      color: colors.muted,
+      textAlign: 'center',
+      fontSize: 12,
+      paddingTop: 32,
+      paddingBottom: 24,
+    },
+    undo: {
+      position: 'absolute',
+      bottom: 12,
+      left: 24,
+      right: 24,
+      maxWidth: 620,
+      alignSelf: 'center',
+      backgroundColor: colors.raised,
+      borderRadius: 12,
+      paddingLeft: 16,
+      paddingRight: 6,
+      flexDirection: 'row',
+      gap: 12,
+      alignItems: 'center',
+    },
+    undoText: { flex: 1, fontSize: 13, lineHeight: 19, paddingVertical: 12 },
+    undoButton: { minWidth: 64, minHeight: 56, alignItems: 'center', justifyContent: 'center' },
+    undoLabel: { color: colors.accent, fontFamily: fonts.bold, fontSize: 13 },
+  });

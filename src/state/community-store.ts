@@ -45,8 +45,10 @@ const validTimestamp = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 
 function validMovieId(value: unknown): value is string {
-  const match = typeof value === 'string' ? /^(jikan|tmdb)-([1-9]\d*)$/.exec(value) : null;
-  return match !== null && Number.isSafeInteger(Number(match[2]));
+  const match = typeof value === 'string' ? /^(jikan|tmdb)-(tv-)?([1-9]\d*)$/.exec(value) : null;
+  return (
+    match !== null && !(match[1] === 'jikan' && match[2]) && Number.isSafeInteger(Number(match[3]))
+  );
 }
 
 function isProfile(value: unknown): value is LocalProfile {

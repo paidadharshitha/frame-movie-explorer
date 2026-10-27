@@ -287,3 +287,176 @@ describe('movie API contracts', () => {
     expect(result.movies[0]?.id).toBe('tmdb-11');
   });
 });
+
+describe('movies and series browsing', () => {
+  it('normalizes series with distinct TMDB IDs and real episode metadata', () => {
+    expect(
+      normalizeTmdb(
+        {
+          id: 11,
+          name: 'Example series',
+          original_name: 'Original name',
+          first_air_date: '2024-06-01',
+          number_of_episodes: 16,
+          number_of_seasons: 2,
+          episode_run_time: [45],
+          genre_ids: [10765],
+          status: 'Returning Series',
+        },
+        'series',
+      ),
+    ).toMatchObject({
+      id: 'tmdb-tv-11',
+      title: 'Example series',
+      originalTitle: 'Original name',
+      mediaType: 'series',
+      year: '2024',
+      episodeCount: 16,
+      seasonCount: 2,
+      runtime: '45m',
+      genres: ['Sci-Fi & Fantasy'],
+      status: 'Returning Series',
+      sourceUrl: 'https://www.themoviedb.org/tv/11',
+    });
+    expect(normalizeTmdb({ id: 11, title: 'Same numeric ID' })?.id).toBe('tmdb-11');
+  });
+
+  it('accepts TV anime only in a series or detail context', () => {
+    const tv = { ...anime, type: 'TV', episodes: 28, status: 'Finished Airing' };
+    expect(normalizeAnime(tv)).toBeNull();
+    expect(normalizeAnime(tv, 'series')).toMatchObject({
+      id: 'jikan-32281',
+      mediaType: 'series',
+      episodeCount: 28,
+      status: 'Finished Airing',
+    });
+    expect(normalizeAnime(tv, 'all')?.mediaType).toBe('series');
+    expect(normalizeAnime(anime, 'series')).toBeNull();
+    expect(
+      normalizeAnimePage({ data: [tv], pagination: { has_next_page: true } }, 1, 'series').nextPage,
+    ).toBe(2);
+  });
+
+  it('opens alternate anime recommendation types without adding them to Movie/TV browse feeds', () => {
+    for (const type of ['ONA', 'OVA']) {
+      const episodic = { ...anime, type, episodes: 10 };
+      expect(normalizeAnime(episodic, 'all')).toMatchObject({
+        mediaType: 'series',
+        episodeCount: 10,
+      });
+      expect(normalizeAnime(episodic, 'movie')).toBeNull();
+      expect(normalizeAnime(episodic, 'series')).toBeNull();
+    }
+    for (const type of ['ONA', 'OVA', 'Special', 'TV Special', 'Music']) {
+      const title = normalizeAnime({ ...anime, type, episodes: 1 }, 'all');
+      expect(title?.id).toBe('jikan-32281');
+      expect(title?.mediaType).toBeUndefined();
+    }
+    expect(normalizeAnime({ ...anime, type: 'Unexpected' }, 'all')).toBeNull();
+  });
+
+  it('loads a recommended ONA through the detail route', async () => {
+    vi.stubEnv('EXPO_PUBLIC_TMDB_READ_ACCESS_TOKEN', '');
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            mal_id: 42310,
+            title: 'Cyberpunk: Edgerunners',
+            type: 'ONA',
+            episodes: 10,
+          },
+        }),
+      ),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const { fetchMovie } = await import('../src/api/movies');
+    expect(await fetchMovie('jikan-42310')).toMatchObject({
+      id: 'jikan-42310',
+      title: 'Cyberpunk: Edgerunners',
+      mediaType: 'series',
+      episodeCount: 10,
+    });
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('/anime/42310/full');
+  });
+
+  it('accepts TV route IDs without accepting path traversal or ambiguous provider prefixes', async () => {
+    const { getId } = await import('../src/api/movies');
+    expect(getId('tmdb-tv-1399')).toEqual({ provider: 'tmdb', value: 1399, mediaType: 'series' });
+    for (const id of [
+      'jikan-tv-1',
+      'tmdb-tv-0',
+      'tmdb-tv-01',
+      'tmdb-tv-1/credits',
+      'tmdb-tv-9007199254740992',
+    ])
+      expect(() => getId(id)).toThrow('invalid');
+  });
+
+  it('requests the real free TV catalog and keeps metadata for details', async () => {
+    vi.stubEnv('EXPO_PUBLIC_TMDB_READ_ACCESS_TOKEN', '');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockImplementation(
+        async (url: string) =>
+          new Response(
+            JSON.stringify(
+              url.includes('/full')
+                ? { data: { ...anime, type: 'TV', episodes: 12 } }
+                : {
+                    data: [{ ...anime, type: 'TV', episodes: 12 }],
+                    pagination: { has_next_page: false },
+                  },
+            ),
+          ),
+      ),
+    );
+    const { fetchMovies, fetchMovie } = await import('../src/api/movies');
+    expect(
+      (await fetchMovies(1, 'popular', undefined, { mediaType: 'series', language: 'all' }))
+        .movies[0]?.mediaType,
+    ).toBe('series');
+    expect(vi.mocked(fetch).mock.calls[0]?.[0]).toContain('/top/anime?type=tv&sfw=true');
+    expect((await fetchMovie('jikan-32281')).episodeCount).toBe(12);
+  });
+
+  it('uses TMDB discover language filters and TV search without confusing translation with original language', async () => {
+    vi.stubEnv('EXPO_PUBLIC_TMDB_READ_ACCESS_TOKEN', 'test-token');
+    const fetchMock = vi.fn().mockImplementation(
+      async () =>
+        new Response(
+          JSON.stringify({
+            results: [
+              { id: 10, name: 'Hindi series', original_language: 'hi' },
+              { id: 11, name: 'English series', original_language: 'en' },
+            ],
+            total_pages: 3,
+            total_results: 50,
+          }),
+        ),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    const { fetchMovies, searchMovies } = await import('../src/api/movies');
+    await fetchMovies(1, 'top-rated', undefined, { mediaType: 'series', language: 'hi' });
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('/discover/tv?');
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('with_original_language=hi');
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('vote_count.gte=50');
+    const search = await searchMovies('Example', 1, undefined, {
+      mediaType: 'series',
+      language: 'te',
+    });
+    expect(fetchMock.mock.calls[1]?.[0]).toContain('/search/tv?');
+    expect(search).toEqual({ movies: [], nextPage: 2, total: null });
+  });
+
+  it('rejects unsupported language browsing on the free catalog before making requests', async () => {
+    vi.stubEnv('EXPO_PUBLIC_TMDB_READ_ACCESS_TOKEN', '');
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const { fetchMovies } = await import('../src/api/movies');
+    await expect(
+      fetchMovies(1, 'popular', undefined, { mediaType: 'movie', language: 'te' }),
+    ).rejects.toMatchObject({ status: 400 });
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});

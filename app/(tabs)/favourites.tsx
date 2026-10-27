@@ -3,12 +3,15 @@ import { ActivityIndicator, Pressable, StyleSheet, View } from 'react-native';
 import { router } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useFavourites } from '../../src/state';
-import { colors, fonts } from '../../src/theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../../src/theme';
 import { AppText, Icon, StateView } from '../../src/components/ui';
-import { ScreenHeader, StatusNotices, screenStyles } from '../../src/components/Shell';
+import { ScreenHeader, StatusNotices, useScreenStyles } from '../../src/components/Shell';
 import { MovieGrid } from '../../src/components/MovieGrid';
 
 export default function FavouritesScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
+  const screenStyles = useScreenStyles();
   const { favourites, isHydrated, storageError } = useFavourites();
   const [sort, setSort] = useState<'recent' | 'title'>('recent');
   const movies = useMemo(
@@ -97,31 +100,32 @@ export default function FavouritesScreen() {
     </SafeAreaView>
   );
 }
-const styles = StyleSheet.create({
-  collectionInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    gap: 8,
-    flexWrap: 'wrap',
-    paddingVertical: 24,
-    marginTop: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    marginBottom: 24,
-  },
-  count: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  countText: { fontSize: 13, fontFamily: fonts.medium },
-  local: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  localText: { fontSize: 11, color: colors.muted },
-  sortRow: { flexDirection: 'row', gap: 8, marginBottom: 24 },
-  sortButton: {
-    minHeight: 48,
-    paddingHorizontal: 18,
-    borderRadius: 24,
-    backgroundColor: colors.surface,
-    justifyContent: 'center',
-  },
-  sortActive: { backgroundColor: colors.accent },
-  sortText: { fontFamily: fonts.medium, fontSize: 13 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    collectionInfo: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      gap: 8,
+      flexWrap: 'wrap',
+      paddingVertical: 24,
+      marginTop: 8,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.border,
+      marginBottom: 24,
+    },
+    count: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    countText: { fontSize: 13, fontFamily: fonts.medium },
+    local: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+    localText: { fontSize: 11, color: colors.muted },
+    sortRow: { flexDirection: 'row', gap: 8, marginBottom: 24 },
+    sortButton: {
+      minHeight: 48,
+      paddingHorizontal: 18,
+      borderRadius: 24,
+      backgroundColor: colors.surface,
+      justifyContent: 'center',
+    },
+    sortActive: { backgroundColor: colors.accent },
+    sortText: { fontFamily: fonts.medium, fontSize: 13 },
+  });

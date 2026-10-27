@@ -12,11 +12,14 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Brand } from '../src/components/Shell';
+import { ThemeSelector } from '../src/components/ThemeSelector';
 import { AppText, Button, Icon, IconButton, InlineNotice, StateView } from '../src/components/ui';
 import { useCommunity } from '../src/state/CommunityProvider';
-import { colors, fonts } from '../src/theme';
+import { fonts, useTheme, useThemedStyles, type ThemeColors } from '../src/theme';
 
 export default function AccountScreen() {
+  const { colors } = useTheme();
+  const styles = useThemedStyles(createStyles);
   const { profile, comments, isHydrated, storageError, signIn, signOut, retrySave } =
     useCommunity();
   const [name, setName] = useState('');
@@ -111,8 +114,8 @@ export default function AccountScreen() {
               </Button>
               <AppText style={styles.note}>
                 Signing out keeps your comments here. Use the same email to return to this demo
-                profile. Favourites and watchlists belong to the device and are shared between local
-                profiles.
+                profile. Favourites, watchlists, ratings and collections belong to the device and
+                are shared between local profiles.
               </AppText>
             </>
           ) : (
@@ -188,6 +191,7 @@ export default function AccountScreen() {
               </Button>
             </>
           )}
+          <ThemeSelector />
           <View style={styles.about}>
             <Button
               secondary
@@ -203,72 +207,79 @@ export default function AccountScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  content: {
-    padding: 24,
-    paddingBottom: 40,
-    maxWidth: 540,
-    width: '100%',
-    alignSelf: 'center',
-    flexGrow: 1,
-  },
-  nav: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 40,
-  },
-  title: { fontFamily: fonts.display, fontSize: 44, lineHeight: 49, marginBottom: 12 },
-  subtitle: { color: colors.muted, fontSize: 15, lineHeight: 24 },
-  demoNote: { flexDirection: 'row', alignItems: 'center', gap: 9, marginTop: 26, marginBottom: 28 },
-  demoText: { color: colors.muted, fontSize: 12, lineHeight: 18, flex: 1 },
-  field: { gap: 8, marginBottom: 20 },
-  label: { fontFamily: fonts.medium, fontSize: 13, color: colors.muted },
-  input: {
-    fontFamily: fonts.regular,
-    fontSize: 15,
-    color: colors.text,
-    backgroundColor: colors.surface,
-    minHeight: 56,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    outlineWidth: 0,
-  },
-  focused: { borderColor: colors.accent },
-  error: { color: colors.error, fontSize: 13, lineHeight: 20, marginBottom: 16 },
-  submit: { marginTop: 4 },
-  note: { color: colors.muted, fontSize: 12, lineHeight: 20, marginVertical: 20 },
-  about: {
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
-    paddingTop: 24,
-    marginTop: 32,
-    alignItems: 'flex-start',
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: colors.accent,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 28,
-  },
-  initial: { fontFamily: fonts.display, fontSize: 44, lineHeight: 50, color: colors.onAccent },
-  profileDetails: {
-    marginVertical: 28,
-    paddingVertical: 24,
-    borderTopWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: colors.border,
-    gap: 8,
-  },
-  email: { fontSize: 16 },
-  commentCount: { flexDirection: 'row', gap: 9, alignItems: 'center', marginTop: 10 },
-  count: { color: colors.muted, fontSize: 13, flex: 1 },
-  signOut: { marginTop: 12 },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    content: {
+      padding: 24,
+      paddingBottom: 40,
+      maxWidth: 540,
+      width: '100%',
+      alignSelf: 'center',
+      flexGrow: 1,
+    },
+    nav: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 40,
+    },
+    title: { fontFamily: fonts.display, fontSize: 44, lineHeight: 49, marginBottom: 12 },
+    subtitle: { color: colors.muted, fontSize: 15, lineHeight: 24 },
+    demoNote: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 9,
+      marginTop: 26,
+      marginBottom: 28,
+    },
+    demoText: { color: colors.muted, fontSize: 12, lineHeight: 18, flex: 1 },
+    field: { gap: 8, marginBottom: 20 },
+    label: { fontFamily: fonts.medium, fontSize: 13, color: colors.muted },
+    input: {
+      fontFamily: fonts.regular,
+      fontSize: 15,
+      color: colors.text,
+      backgroundColor: colors.surface,
+      minHeight: 56,
+      borderWidth: 1,
+      borderColor: colors.border,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 14,
+      outlineWidth: 0,
+    },
+    focused: { borderColor: colors.accent },
+    error: { color: colors.error, fontSize: 13, lineHeight: 20, marginBottom: 16 },
+    submit: { marginTop: 4 },
+    note: { color: colors.muted, fontSize: 12, lineHeight: 20, marginVertical: 20 },
+    about: {
+      borderTopWidth: 1,
+      borderTopColor: colors.border,
+      paddingTop: 24,
+      marginTop: 32,
+      alignItems: 'flex-start',
+    },
+    avatar: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: colors.accent,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginBottom: 28,
+    },
+    initial: { fontFamily: fonts.display, fontSize: 44, lineHeight: 50, color: colors.onAccent },
+    profileDetails: {
+      marginVertical: 28,
+      paddingVertical: 24,
+      borderTopWidth: 1,
+      borderBottomWidth: 1,
+      borderColor: colors.border,
+      gap: 8,
+    },
+    email: { fontSize: 16 },
+    commentCount: { flexDirection: 'row', gap: 9, alignItems: 'center', marginTop: 10 },
+    count: { color: colors.muted, fontSize: 13, flex: 1 },
+    signOut: { marginTop: 12 },
+  });

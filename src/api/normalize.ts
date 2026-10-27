@@ -1,4 +1,4 @@
-import type { Movie, MoviePage } from '../types/movie';
+import type { MediaType, Movie, MoviePage } from '../types/movie';
 import { ApiError } from './client';
 
 type JsonObject = Record<string, unknown>;
@@ -37,11 +37,30 @@ function names(value: unknown): string[] {
   return Array.isArray(value) ? value.map((item) => text(object(item).name)).filter(Boolean) : [];
 }
 
-export function normalizeAnime(input: unknown): Movie | null {
+export function normalizeAnime(
+  input: unknown,
+  mediaType: MediaType | 'all' = 'movie',
+): Movie | null {
   const item = object(input);
   const id = positiveId(item.mal_id);
   const title = text(item.title_english) || text(item.title);
-  if (!id || !title || item.type !== 'Movie') return null;
+  const catalogType = item.type === 'Movie' ? 'movie' : item.type === 'TV' ? 'series' : undefined;
+  const episodeCount = positiveId(item.episodes);
+  // Recommendations can point to web/video releases and specials outside the
+  // Movie/TV browse feeds. Open those details without inventing a movie label.
+  const otherType = ['ONA', 'OVA', 'Special', 'TV Special', 'Music'].includes(text(item.type));
+  if (
+    !id ||
+    !title ||
+    (!catalogType && !otherType) ||
+    (mediaType !== 'all' && mediaType !== catalogType)
+  )
+    return null;
+  const detectedType =
+    catalogType ??
+    ((item.type === 'ONA' || item.type === 'OVA') && episodeCount && episodeCount > 1
+      ? 'series'
+      : undefined);
   const images = object(object(item.images).jpg);
   const trailer = object(item.trailer);
   const youtubeId = text(trailer.youtube_id);
@@ -49,6 +68,7 @@ export function normalizeAnime(input: unknown): Movie | null {
   return {
     id: `jikan-${id}`,
     provider: 'jikan',
+    mediaType: detectedType,
     title,
     originalTitle: text(item.title) || undefined,
     posterUrl: safeUrl(images.large_image_url) ?? safeUrl(images.image_url) ?? null,
@@ -65,6 +85,8 @@ export function normalizeAnime(input: unknown): Movie | null {
       ? `https://www.youtube.com/watch?v=${youtubeId}`
       : undefined,
     sourceUrl: `https://myanimelist.net/anime/${id}`,
+    episodeCount: detectedType === 'series' ? episodeCount : undefined,
+    status: text(item.status) || undefined,
   };
 }
 
@@ -88,21 +110,32 @@ const TMDB_GENRES: Record<number, string> = {
   53: 'Thriller',
   10752: 'War',
   37: 'Western',
+  10759: 'Action & Adventure',
+  10762: 'Kids',
+  10763: 'News',
+  10764: 'Reality',
+  10765: 'Sci-Fi & Fantasy',
+  10766: 'Soap',
+  10767: 'Talk',
+  10768: 'War & Politics',
 };
 
-function tmdbImage(path: unknown, size: 'w500' | 'w1280'): string | null {
+export function tmdbImage(path: unknown, size: 'w500' | 'w1280'): string | null {
   return typeof path === 'string' && /^\/[\w-]+\.(jpg|png|webp)$/i.test(path)
     ? `https://image.tmdb.org/t/p/${size}${path}`
     : null;
 }
 
-export function normalizeTmdb(input: unknown): Movie | null {
+export function normalizeTmdb(input: unknown, mediaType: MediaType = 'movie'): Movie | null {
   const item = object(input);
   const id = positiveId(item.id);
-  const title = text(item.title);
+  const series = mediaType === 'series';
+  const title = text(series ? item.name : item.title);
   if (!id || !title) return null;
-  const releaseDate = text(item.release_date);
-  const minutes = number(item.runtime);
+  const releaseDate = text(series ? item.first_air_date : item.release_date);
+  const minutes = number(
+    series && Array.isArray(item.episode_run_time) ? item.episode_run_time[0] : item.runtime,
+  );
   const videoResults = object(item.videos).results;
   const trailer = Array.isArray(videoResults)
     ? videoResults
@@ -116,10 +149,11 @@ export function normalizeTmdb(input: unknown): Movie | null {
     : undefined;
   const genres = names(item.genres);
   return {
-    id: `tmdb-${id}`,
+    id: `tmdb-${series ? 'tv-' : ''}${id}`,
     provider: 'tmdb',
+    mediaType,
     title,
-    originalTitle: text(item.original_title) || undefined,
+    originalTitle: text(series ? item.original_name : item.original_title) || undefined,
     posterUrl: tmdbImage(item.poster_path, 'w500'),
     backdropUrl: tmdbImage(item.backdrop_path, 'w1280'),
     overview: text(item.overview),
@@ -139,7 +173,10 @@ export function normalizeTmdb(input: unknown): Movie | null {
         : null,
     releaseDate: releaseDate || undefined,
     trailerUrl: trailer ? `https://www.youtube.com/watch?v=${text(trailer.key)}` : undefined,
-    sourceUrl: `https://www.themoviedb.org/movie/${id}`,
+    sourceUrl: `https://www.themoviedb.org/${series ? 'tv' : 'movie'}/${id}`,
+    episodeCount: series ? positiveId(item.number_of_episodes) : undefined,
+    seasonCount: series ? positiveId(item.number_of_seasons) : undefined,
+    status: text(item.status) || undefined,
   };
 }
 
@@ -156,23 +193,31 @@ function moviesFrom(items: unknown, normalize: (value: unknown) => Movie | null)
   return [...new Map(movies.map((movie) => [movie.id, movie])).values()];
 }
 
-export function normalizeAnimePage(input: unknown, requestedPage: number): MoviePage {
+export function normalizeAnimePage(
+  input: unknown,
+  requestedPage: number,
+  mediaType: MediaType = 'movie',
+): MoviePage {
   const response = object(input);
   const pagination = object(response.pagination);
   if (typeof pagination.has_next_page !== 'boolean') return invalidResponse();
   return {
-    movies: moviesFrom(response.data, normalizeAnime),
+    movies: moviesFrom(response.data, (item) => normalizeAnime(item, mediaType)),
     nextPage: pagination.has_next_page ? requestedPage + 1 : undefined,
     total: number(object(pagination.items).total) ?? null,
   };
 }
 
-export function normalizeTmdbPage(input: unknown, requestedPage: number): MoviePage {
+export function normalizeTmdbPage(
+  input: unknown,
+  requestedPage: number,
+  mediaType: MediaType = 'movie',
+): MoviePage {
   const response = object(input);
   const totalPages = number(response.total_pages);
   if (totalPages === undefined || totalPages < 0) return invalidResponse();
   return {
-    movies: moviesFrom(response.results, normalizeTmdb),
+    movies: moviesFrom(response.results, (item) => normalizeTmdb(item, mediaType)),
     // TMDB only permits paging through the first 500 pages.
     nextPage: requestedPage < Math.min(totalPages, 500) ? requestedPage + 1 : undefined,
     total: number(response.total_results) ?? null,
