@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Frame",
+    "slug": "frame-movie-explorer",
+    "scheme": "frame",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/icon.png",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.frame.movieexplorer"
+    },
+    "android": {
+      "package": "com.frame.movieexplorer",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#111512"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "Frame — Movie Explorer"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#111512",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 96
+        }
+      ],
+      "expo-image",
+      "expo-status-bar",
+      "expo-font"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
