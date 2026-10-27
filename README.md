@@ -10,9 +10,9 @@ Built with **Expo 58 · React Native 0.88 · React 19.3 · TypeScript · Expo Ro
   <img src="docs/screenshots/personal-library.jpg" alt="Personal collections in the Library tab" width="220" />
 </p>
 
-[Watch the original baseline demo](docs/frame-demo.mp4) · [Validation record](docs/VALIDATION.md) · [Desktop library](docs/screenshots/desktop-library.jpg)
+[Watch the latest two-minute native demo](docs/frame-native-demo.mp4) · [Download Android APK](https://github.com/paidadharshitha/frame-movie-explorer/releases/download/android-preview-2026-10-27/frame-preview-arm64.apk) · [Validation record](docs/VALIDATION.md)
 
-The existing recording covers the original browsing, search, details, and favourites flow. It predates the newer features shown in these screenshots.
+The latest recording runs the standalone APK on Android 15: search, details, favourites, a personal rating, a custom collection, cinema stats, light appearance, and series browsing. It is a silent, 120-second native emulator capture; [chapters and recording details](docs/DEMO_SCRIPT.md) describe exactly what it shows.
 
 ## Run it
 
@@ -153,11 +153,25 @@ npm run export:android
 
 The current unit suite has **123 passing tests**, covering provider normalization and request options, movie/series ID separation, credits and episode data, durable-store failure recovery, rapid writes, personal-rating bounds, collection validation/Undo, derived statistics, theme preferences, and existing discovery/profile/comment behavior.
 
-Final export and browser results for this revision are recorded in [VALIDATION.md](docs/VALIDATION.md), alongside remaining checks and dependency audit findings. Unit coverage of network/storage failure handling is not an airplane-mode or native-device test. TMDB uses mocked-response coverage until a real token is configured and verified. The Android Hermes export checks the JavaScript bundle; it does not produce an APK.
+Automated, browser, and native Android results are recorded in [VALIDATION.md](docs/VALIDATION.md), alongside remaining checks and dependency audit findings. The submitted APK was installed and exercised on an Android 15 / API 35 arm64 emulator, including scrolling/pagination, pull-to-refresh, search/keyboard/Back, series details, light/system/dark appearance, and offline force-stop/relaunch with saved-data recovery. This is emulator evidence, not a physical-device run. TMDB uses mocked-response coverage; the user chose the key-free catalog for this submission.
 
 ## Android APK
 
-An EAS `preview` build profile is included and requests an installable Android APK. With access to an Expo account:
+**[Download the standalone Android preview APK](https://github.com/paidadharshitha/frame-movie-explorer/releases/download/android-preview-2026-10-27/frame-preview-arm64.apk)** · [SHA-256 checksum](https://github.com/paidadharshitha/frame-movie-explorer/releases/download/android-preview-2026-10-27/frame-preview-arm64.apk.sha256)
+
+This APK uses the live, key-free animated movie and series catalog. It includes its JavaScript bundle and runs without Metro or Expo Go. It supports **arm64-v8a Android devices, Android 7.0 / API 24 or later**; it targets API 36 and was compiled with API 37. The release variant uses a development signing key for review and is not a Play Store production release.
+
+The artifact was built from [`69cd1dc`](https://github.com/paidadharshitha/frame-movie-explorer/commit/69cd1dc3def1e1edbb41eb99ce7dd160c384b840) by [Android preview build 40483623767](https://github.com/paidadharshitha/frame-movie-explorer/actions/runs/40483623767). The verified SHA-256 is:
+
+```text
+e6392ffab70baa023fd61f1010f69238df30e3761649e064510f0ea3687b4d49
+```
+
+Download the APK on a compatible device, open it, and follow Android's install prompt. When Android asks, allow installation from the source used to open this APK. The exact artifact was tested on an isolated **Android 15 / API 35, 720×1600, 320 dpi emulator**. See the native validation table for the scenarios actually exercised.
+
+To reproduce the key-free APK without an Expo account, run the repository's **Android preview APK** GitHub Actions workflow manually. It generates the Android project, builds the standalone arm64 release variant, verifies its signature, and uploads the APK plus checksum. Actions artifacts expire after 30 days; the release links above are the submission downloads.
+
+An EAS `preview` build profile is also included as an alternative. With an Expo account:
 
 ```bash
 npx eas-cli login
@@ -165,16 +179,17 @@ npx eas-cli build:configure
 npm run build:apk
 ```
 
-Use the completed build's download URL to install the APK on Android. If using TMDB, configure the same public environment variable for the build; the key-free catalog needs no build secret. The `development` profile is available for an Expo development client, and `production` is reserved for store builds.
-
-No APK is included in this submission; the screen recording is supplied instead. Building an APK requires signing in to Expo and completing the EAS build.
+If building a TMDB edition, configure the same public environment variable for that build. The current preview workflow deliberately builds the key-free catalog. The EAS `development` profile is available for an Expo development client, and `production` is reserved for store builds.
 
 ## Submission
 
 - **Repository:** [paidadharshitha/frame-movie-explorer](https://github.com/paidadharshitha/frame-movie-explorer)
-- **Recording:** [Original baseline two-minute Frame demo](docs/frame-demo.mp4)
+- **Android APK:** [Standalone arm64 preview](https://github.com/paidadharshitha/frame-movie-explorer/releases/download/android-preview-2026-10-27/frame-preview-arm64.apk) · [checksum](https://github.com/paidadharshitha/frame-movie-explorer/releases/download/android-preview-2026-10-27/frame-preview-arm64.apk.sha256)
+- **Recording:** [Latest two-minute native Android demo](docs/frame-native-demo.mp4) · [download from the release](https://github.com/paidadharshitha/frame-movie-explorer/releases/download/android-preview-2026-10-27/frame-native-demo.mp4)
 
-The recording is an **original baseline**, showing browsing, search, details, and favourites before the later discovery, watchlist, profile/comments, series, ratings, collections, stats, and theme additions. It uses the real app's phone-sized web preview with live Tenrai data; it is silent, captured at 4 fps, and edited to compress inactive gaps. It is not a native-device or APK recording. The screenshots show the expanded interface, and the [updated two-minute recording script](docs/DEMO_SCRIPT.md) covers the new features without claiming the old video demonstrates them.
+The latest demo uses the submitted standalone APK on an Android 15 / API 35 emulator at 720×1600. It is exactly 120 seconds, H.264 at 30 fps, silent, and about 6.1 MB. Only trailing footage was trimmed; the demonstrated interactions have no scene cuts or speed changes. It shows the live key-free catalog and local demo-library actions, not a physical phone, TMDB language results or an offline test. Offline restart and reconnect checks have separate evidence in [VALIDATION.md](docs/VALIDATION.md).
+
+The [older web-preview recording](docs/frame-demo.mp4) is retained as a historical baseline. It predates the expanded features and is not the current submission demo.
 
 ## Data and attribution
 

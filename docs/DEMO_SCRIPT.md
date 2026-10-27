@@ -1,40 +1,39 @@
-# Two-minute Frame feature demo
+# Two-minute native Frame demo
 
-This is a plan for a **new recording of the expanded app**. The existing [Frame video](frame-demo.mp4) is the original baseline: a silent, edited capture of the phone-sized web preview at 4 fps showing browsing, search, details, and favourites. It predates series, cast/episodes, personal ratings, collections, stats, and themes. Do not label it as evidence for this new sequence.
+[Watch the current recording](frame-native-demo.mp4) · [Native validation evidence](VALIDATION.md#standalone-android-apk--october-27-2026)
 
-Completed checks and their limits belong in [VALIDATION.md](VALIDATION.md). A planned offline step is not evidence of an airplane-mode or native-device test.
+This is an **actual native Android recording**, made on October 27, 2026 from the submitted standalone APK: source `69cd1dc3def1e1edbb41eb99ce7dd160c384b840`, GitHub Actions build `40483623767`. It runs on an Android 15 / API 35 arm64 emulator at 720×1600, 320 dpi, using the live, key-free Tenrai animated movie and series catalog. Metro and Expo Go are not required by this APK.
 
-## Prepare the app
+The file is exactly **120 seconds**, silent H.264 / yuv420p at 30 fps, approximately 6.1 MB. It retains the first 120 seconds of a 131.42-second native screen capture. Only trailing footage was trimmed; there are no scene cuts or speed changes. The variable-frame-rate capture was encoded at a regular 30 fps for playback compatibility, not to claim a measured app frame rate.
 
-1. Start a working install and record its commit/build, platform, and provider. The default Tenrai catalog supplies animated movies and anime series without a key. No TMDB token is included; to demonstrate Telugu/Hindi/English movies or TV, configure your own token locally and restart Metro first.
-2. Use a readable phone-sized view. Check live Movies, Series, and one search. Choose a series with available cast and episodes; choose a different movie to rate during the recording. Let network requests settle before recording.
-3. Prepare a small, honest local library: a watched movie, a watched series, and at least two personal ratings. Create a collection with a few titles so the Library and Stats screens have meaningful data. These are deliberate demo interactions, not fabricated watch history.
-4. Keep one title unsaved for the live favourite action. Prepare a short collection name and a search term that returns a result. If showing comments, use a disposable demo identity and hide its email; never capture real personal details or environment files.
-5. Decide how to demonstrate connectivity. Use a device or emulator with a visible network toggle, or a clearly labeled browser preview. Load the title to be opened offline and allow local storage to finish. Do not describe browser network controls as a native airplane-mode test.
-6. Hide notifications and credentials. Start in Dark appearance so a later Light switch is visible. If narrating, check microphone volume; keep the text on screen legible rather than accelerating taps.
+## Chapters in the supplied recording
 
-## Recording sequence
+Times are rounded from the [recorded action timestamps](native-evidence/recording-events.json). The final screen is held through the end of the two minutes.
 
-| Time      | Show                                                                                                     | Suggested narration                                                                                                                                                                                          |
-| --------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 0:00–0:12 | Discover, popular posters, pagination, then pull-to-refresh                                              | “Frame explores movies and series. New pages load as I scroll, and refresh keeps existing content available.”                                                                                                |
-| 0:12–0:23 | Switch to Series; show the provider scope. With TMDB configured, briefly select one language             | Key-free: “This live catalog includes animated movies and anime series. TMDB adds world cinema and original-language filters.” With TMDB: “I can browse Telugu, Hindi, or English original-language titles.” |
-| 0:23–0:34 | Search for the prepared title, pause after typing, and open it                                           | “Search is debounced, with separate results for each media type and language.”                                                                                                                               |
-| 0:34–0:49 | Show poster/overview; save the title; open Cast & crew, then More like this                              | “Details include the story, cast and creators, plus related titles to explore.”                                                                                                                              |
-| 0:49–1:03 | On the chosen series, open Episodes, expand one row, and use Next if available                           | “Series have episode information and season selection where provided. Anime seasons are separate catalog titles, and long lists show 20 episodes per page.”                                                  |
-| 1:03–1:18 | Give a personal star rating; open Add to a collection and add the title to the prepared list             | “My own rating is out of five and marks the title watched. I can keep it in any of my custom collections.”                                                                                                   |
-| 1:18–1:33 | Open Library; show the collection and its rename/remove controls, then Your ratings and Stats            | “The library saves my lists and ratings on this device. Stats come from my actual watched titles and personal scores.”                                                                                       |
-| 1:33–1:43 | Open the person icon, find Appearance, switch to Light, then return                                      | “Light, dark, and system appearance are saved locally, with reduced-motion support.”                                                                                                                         |
-| 1:43–2:00 | Disconnect visibly, open the prepared title from its collection or Favourites, then restore connectivity | “Saved metadata and personal actions stay usable offline. Unloaded information has clear recovery when the connection returns.”                                                                              |
+| Time      | Visible flow                                                                             |
+| --------- | ---------------------------------------------------------------------------------------- |
+| 0:00–0:09 | Discover in Dark appearance; scroll the live movie feed                                  |
+| 0:09–0:20 | Open Search, type `Your Name`, dismiss the Android keyboard with Back, and open a result |
+| 0:20–0:30 | Your Name poster, metadata and community score; save to favourites                       |
+| 0:30–0:38 | Give Your Name a personal four-star rating; it becomes watched                           |
+| 0:38–0:44 | Add the title to the existing Weekend watch collection                                   |
+| 0:44–0:59 | Open Library and the collection containing Your Name and Spirited Away                   |
+| 0:59–1:05 | Show Your ratings                                                                        |
+| 1:05–1:13 | Show cinema Stats: two watched movies, two ratings and a 4.5/5 personal average          |
+| 1:13–1:26 | Open the guest account screen, scroll to Appearance and switch to Light                  |
+| 1:26–1:43 | Return to Discover, switch to Series and browse the real animated series catalog         |
+| 1:43–2:00 | Open Favourites in Light appearance, showing the two saved movies                        |
 
-If live requests need more time, trim the opening scroll and narration. Keep interactions readable and use a separate, honestly labeled extended clip for cold-launch persistence, comments, or additional failure recovery. Do not imply a step succeeded if it was cut from the recording. Fix observed failures and keep their verification record visible.
+The library is deliberate test data created through app interactions. Spirited Away and the Weekend watch collection existed from the native validation steps; Your Name is saved, rated and added during the recording. No claim is made that these test ratings represent the owner's viewing history.
 
-For a fresh recording without a TMDB token, show the real animated catalog and state that language filters require configuration. Do not present mock Telugu/Hindi/English posters, claim working playback, or describe the device-only profile as a server account.
+## What this clip does not demonstrate
 
-## Submission note
+Offline restart, reconnection, System appearance changes, cast and episode details were tested separately and have screenshots in [VALIDATION.md](VALIDATION.md). They are not shown in this clip. The recording does not demonstrate TMDB language filters, movie playback, server authentication, a physical Android phone, or a full accessibility/performance audit.
 
-Alongside the repository URL, include the new recording file or viewable link and a concise context statement:
+The user chose to proceed with the key-free catalog. Telugu/Hindi/English original-language browsing remains implemented behind TMDB configuration and is not presented as live-verified here.
 
-> Recorded on [actual device/platform], using [Tenrai animated movies and series / configured TMDB], from [commit/build]. Demonstrates [only the features visible in this recording].
+## Recording checks
 
-Replace the brackets with actual information. Confirm reviewers can open the link without requesting access. Label browser previews and any edits accurately. The task accepts a recording as an alternative to an APK/Expo link; screenshots alone do not replace that deliverable. Keep the existing `frame-demo.mp4` labeled **original baseline** until a new video is actually captured.
+The encoded MP4 was checked for its 120.00-second duration, 720×1600 dimensions, H.264/yuv420p encoding, 30 fps and fast-start ordering. Representative frames at 0, 20, 32, 42, 53, 67, 81, 97 and 110 seconds were inspected against the intended flow. [Recording metadata](native-evidence/recording.json) includes the file checksum and size.
+
+The [older Frame video](frame-demo.mp4) is a historical, edited phone-sized web-preview baseline. It predates the expanded app and is not the current submission recording.

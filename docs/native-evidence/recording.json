@@ -1,0 +1,146 @@
+{
+  "recordedDate": "2026-10-27",
+  "sourceCommit": "69cd1dc3def1e1edbb41eb99ce7dd160c384b840",
+  "sourceApkSha256": "e6392ffab70baa023fd61f1010f69238df30e3761649e064510f0ea3687b4d49",
+  "platform": "Android 15 / API 35 arm64 emulator",
+  "provider": "Live Tenrai animated movie and series catalog",
+  "file": "docs/frame-native-demo.mp4",
+  "durationSeconds": 120.0,
+  "width": 720,
+  "height": 1600,
+  "fps": 30,
+  "codec": "H.264 High",
+  "pixelFormat": "yuv420p",
+  "audio": false,
+  "faststart": true,
+  "bytes": 6120011,
+  "sha256": "a2bb06e9d26ba38c30f523ca36e25ff94e81c25748279e2d8293857769f3573a",
+  "editing": "First 120 seconds retained from 131.42-second native screenrecord capture; trailing footage trimmed, no scene cuts or speed changes. Variable-frame-rate capture normalized to 30 fps.",
+  "inspectedFrameSeconds": [0, 20, 32, 42, 53, 67, 81, 97, 110],
+  "events": [
+    {
+      "seconds": 0.0,
+      "action": "Recording starts on Discover"
+    },
+    {
+      "seconds": 3.71,
+      "action": "Scroll"
+    },
+    {
+      "seconds": 9.43,
+      "action": "Tap Search"
+    },
+    {
+      "seconds": 12.04,
+      "action": "Tap Search movies and series"
+    },
+    {
+      "seconds": 12.71,
+      "action": "Type Your Name"
+    },
+    {
+      "seconds": 13.77,
+      "action": "Android Back"
+    },
+    {
+      "seconds": 19.6,
+      "action": "Tap View Your Name., 2016"
+    },
+    {
+      "seconds": 26.51,
+      "action": "Tap Save to favourites"
+    },
+    {
+      "seconds": 27.72,
+      "action": "Scroll"
+    },
+    {
+      "seconds": 30.43,
+      "action": "Tap Rate Your Name. 4 stars out of 5"
+    },
+    {
+      "seconds": 38.28,
+      "action": "Tap Add to a collection"
+    },
+    {
+      "seconds": 40.87,
+      "action": "Tap Weekend watch"
+    },
+    {
+      "seconds": 43.55,
+      "action": "Android Back"
+    },
+    {
+      "seconds": 46.33,
+      "action": "Tap Library"
+    },
+    {
+      "seconds": 48.96,
+      "action": "Tap collections"
+    },
+    {
+      "seconds": 51.52,
+      "action": "Tap Open Weekend watch, 2 titles"
+    },
+    {
+      "seconds": 56.25,
+      "action": "Android Back"
+    },
+    {
+      "seconds": 59.05,
+      "action": "Tap Your ratings"
+    },
+    {
+      "seconds": 64.67,
+      "action": "Tap stats"
+    },
+    {
+      "seconds": 65.87,
+      "action": "Scroll"
+    },
+    {
+      "seconds": 72.7,
+      "action": "Tap Search"
+    },
+    {
+      "seconds": 75.34,
+      "action": "Tap Sign in"
+    },
+    {
+      "seconds": 77.04,
+      "action": "Scroll"
+    },
+    {
+      "seconds": 79.7,
+      "action": "Tap Light appearance"
+    },
+    {
+      "seconds": 83.41,
+      "action": "Android Back"
+    },
+    {
+      "seconds": 86.21,
+      "action": "Tap Discover"
+    },
+    {
+      "seconds": 92.48,
+      "action": "Tap Series"
+    },
+    {
+      "seconds": 95.7,
+      "action": "Scroll"
+    },
+    {
+      "seconds": 102.79,
+      "action": "Tap Favourites"
+    },
+    {
+      "seconds": 106.55,
+      "action": "Core demonstration complete"
+    },
+    {
+      "seconds": 126.0,
+      "action": "Stop recording"
+    }
+  ]
+}
