@@ -6,6 +6,7 @@ import { useState, type PropsWithChildren } from 'react';
 import { FavouritesProvider } from './FavouritesProvider';
 import { NetworkProvider } from './NetworkProvider';
 import { WatchlistProvider } from './WatchlistProvider';
+import { CommunityProvider } from './CommunityProvider';
 import {
   QUERY_STORAGE_KEY,
   serializeQueryCache,
@@ -63,7 +64,9 @@ export function AppProviders({ children }: PropsWithChildren) {
         }}
       >
         <FavouritesProvider>
-          <WatchlistProvider>{children}</WatchlistProvider>
+          <WatchlistProvider>
+            <CommunityProvider>{children}</CommunityProvider>
+          </WatchlistProvider>
         </FavouritesProvider>
       </PersistQueryClientProvider>
     </NetworkProvider>

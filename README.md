@@ -64,11 +64,26 @@ npx expo start --clear
 | Personalised discovery | “Surprise me” favours genres from saved favourites, skips watched films, and explains each pick |
 | Collection filters | Combine genre, a rating of 8+, and hide-watched filters, with a clear count of matching loaded films |
 | Watchlist and film diary | Separate Planned and Watched lists, watched dates, status badges, and an eight-second Undo after list removal |
+| Demo sign-in | A name/email profile on this device, a restored session, and sign-out; guest browsing stays available |
+| Film comments | Local comments with a 1,000-character limit, hidden spoilers, and deletion/Undo for the active profile's own comments |
 | Slow or lost network | Previously loaded content stays useful; retries and connectivity feedback explain what happens next |
 
 Discovery runs locally on the films already loaded. It needs no account, sends no preference profile to a recommendation service, and does not fetch more pages merely because a filter changes. With filters active, **Load more films** expands the selection explicitly. Favourites remain independent from viewing plans: loving a film and planning to watch it are separate actions.
 
 The [manual review checklist](docs/REVIEW_CHECKLIST.md) covers both the happy path and failure cases. Actual checks and their limits are recorded in [VALIDATION.md](docs/VALIDATION.md).
+
+## Try the local profile and comments
+
+Open the **person icon** in the header and enter a display name and email. This is a device-only demo: no password is collected, the email is not verified, and no server account is created. Using the same email again restores the same local identity. About Frame is available from this profile screen.
+
+Open a film's details and tap the comment icon beside its rating to jump to the discussion. Mark a comment as a spoiler to hide its text until a reader chooses to reveal it. You can delete comments written by your active local profile and undo that deletion within eight seconds. Signing out keeps the comments; you can continue browsing as a guest.
+
+<p>
+  <img src="docs/screenshots/login.jpg" alt="Device-only demo sign-in with name and email" width="220" />
+  <img src="docs/screenshots/comments.jpg" alt="Local film comment and spoiler-aware composer" width="220" />
+</p>
+
+Profiles and comments stay on this device and are not shared across devices or synced to a cloud service. Favourites and Watchlist remain shared device collections, regardless of which demo profile is active. The catalog still contains movies; this feature does not add a series library or a video player.
 
 ## State and data design
 
@@ -77,6 +92,8 @@ The [manual review checklist](docs/REVIEW_CHECKLIST.md) covers both the happy pa
 **Favourites belong to the device.** They are stored separately from the expiring query cache, so saving a movie does not depend on a successful network request or on the lifetime of a search result. A movie snapshot keeps a saved title useful when the device is offline. Writes are serialized so rapid taps cannot overwrite a later action. A failed save keeps the latest state in memory and offers a retry; a failed initial read blocks writes so an unreadable collection is not overwritten.
 
 **Watch history has its own durable store.** Planned and watched entries keep full movie snapshots under a separate AsyncStorage key, with their added and watched dates. The store validates restored records, serializes writes, and offers recovery without overwriting unreadable data. Undo restores the original entry and dates. Details can use watchlist snapshots even after the query cache expires.
+
+**Local profiles and comments share one store.** `@frame/community/v1` stores profiles, the active profile ID, and comments in one versioned envelope. Hydration validates the entire record before enabling changes. Serialized writes keep rapid sign-in/comment/sign-out actions ordered; a failed write retains the latest in-memory state with a retry, while a failed read leaves the stored data untouched. This models a demo session and authorship, not authentication.
 
 **Screen state stays local.** Search text, selected filters, and short-lived presentation state stay close to the screen that owns them. Provider adapters normalize external data into a shared movie model so the UI does not depend on a particular API response shape.
 
@@ -92,7 +109,7 @@ src/api/                HTTP client, provider adapters, response normalization
 src/components/         Shared cards, featured movie, and UI states
 src/hooks/              Query hooks, pagination helpers, input debouncing
 src/lib/                Pure discovery, filtering, and recommendation logic
-src/state/              Query persistence, connectivity, favourites and watchlist stores
+src/state/              Query persistence, connectivity, collections, local profiles/comments
 src/types/              Shared movie and pagination types
 src/theme.ts            Visual tokens
 tests/                  API, storage, discovery, and query-policy unit tests
@@ -112,7 +129,7 @@ npm run export:web
 npm run export:android
 ```
 
-**Passed:** TypeScript, ESLint, formatting, all **56 unit tests**, the web production export, and the Android Hermes JavaScript export. Browser checks covered the core browsing flow, personalised picks, combined filters, watchlist status changes, Undo, and saved data surviving a full reload. The interface was checked at phone and desktop sizes.
+**Passed:** TypeScript, ESLint, formatting, all **67 unit tests**, the web production export, and the Android Hermes JavaScript export. Browser checks covered the core browsing flow, personalised picks, combined filters, watchlist status changes, Undo, and saved data surviving a full reload. The interface was checked at phone and desktop sizes. Local-profile tests cover identity reuse, comment ownership, spoiler/length validation, deletion/Undo, restart persistence, and storage failure recovery.
 
 Offline handling and storage failures have unit coverage. Airplane-mode behavior and native devices were not tested, and TMDB was verified with mocked responses only. The Android export is a bundle check, not an APK. See [the validation record](docs/VALIDATION.md) for evidence, remaining checks, and dependency audit findings.
 
@@ -135,7 +152,7 @@ No APK is included in this submission; the screen recording is supplied instead.
 - **Repository:** [paidadharshitha/frame-movie-explorer](https://github.com/paidadharshitha/frame-movie-explorer)
 - **Recording:** [Original two-minute Frame demo](docs/frame-demo.mp4)
 
-The recording shows the original core browsing, search, details, and favourites flow before the discovery/filter/watchlist additions. Current screenshots above show those additions. The recording uses the real app's phone-sized web preview with live Tenrai data; it is silent, captured at 4 fps, and edited to compress inactive gaps. It is not a native-device or APK recording. A [reusable demo script](docs/DEMO_SCRIPT.md) is also included.
+The recording shows the original core browsing, search, details, and favourites flow before the discovery, filter, watchlist, demo-profile, and comment additions. The screenshots above show discovery, filters, and Watchlist. The recording uses the real app's phone-sized web preview with live Tenrai data; it is silent, captured at 4 fps, and edited to compress inactive gaps. It is not a native-device or APK recording. A [reusable demo script](docs/DEMO_SCRIPT.md) is also included.
 
 ## Data and attribution
 

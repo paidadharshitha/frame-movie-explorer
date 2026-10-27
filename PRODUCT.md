@@ -3,10 +3,12 @@
 A React Native movie explorer for discovering, searching, and saving films on a phone, including on unreliable mobile connections.
 
 ## Audience and purpose
-Movie lovers choosing something to watch, and reviewers evaluating a working app. The user prioritizes functionality, clear structure, smooth UX, and sensible state management. No authentication is needed.
+Movie lovers choosing something to watch, and reviewers evaluating a working app. The user prioritizes functionality, clear structure, smooth UX, and sensible state management. Browsing needs no login. An optional device-only demo sign-in uses a name and unverified email to attribute local film comments; it collects no password and provides no real authentication or shared discussion service.
 
 ## Product requirements
 Popular movies with infinite pagination and pull-to-refresh; debounced search; navigable details with poster, numeric rating, and overview; persistent favourites in a separate tab; loading, empty, and recoverable error states; useful behavior after the network drops.
+
+Local demo profiles support sign-in, sign-out, and persistent film comments with spoiler hiding and own-comment removal with Undo. Comments and profile data stay on this device; favourites and watchlists are shared device collections, not profile-specific cloud data.
 
 ## Stack
 Expo, React Native, TypeScript, Expo Router, TanStack Query, AsyncStorage. Android is the primary target, with iOS support and a responsive web preview. A live Jikan-compatible movie-only anime catalog works without keys. An optional TMDB token enables general cinema. The default catalog must be clearly identified as animated films. Never invent ratings or show fake live data.

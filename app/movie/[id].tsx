@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState } from 'react';
+import { useRef, useState, type ComponentRef } from 'react';
 import { useMovie } from '../../src/hooks';
 import { useFavourites, useNetworkStatus } from '../../src/state';
 import { colors, fonts } from '../../src/theme';
@@ -25,6 +25,7 @@ import {
 } from '../../src/components/ui';
 import { StatusNotices } from '../../src/components/Shell';
 import { WatchlistControls } from '../../src/components/WatchlistControls';
+import { MovieComments } from '../../src/components/MovieComments';
 
 export default function MovieDetailsScreen() {
   const { id: rawId } = useLocalSearchParams<{ id: string }>();
@@ -33,6 +34,9 @@ export default function MovieDetailsScreen() {
   const { isOnline } = useNetworkStatus();
   const { isFavourite, toggleFavourite, isHydrated } = useFavourites();
   const [linkError, setLinkError] = useState<string | null>(null);
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const bodyOffset = useRef(0);
+  const commentsOffset = useRef(0);
   const { width } = useWindowDimensions();
   const movie = query.data;
   const saved = Boolean(movie && isFavourite(movie.id));
@@ -81,7 +85,14 @@ export default function MovieDetailsScreen() {
   const ratingSource = movie.provider === 'tmdb' ? 'TMDB' : 'MyAnimeList';
   return (
     <SafeAreaView edges={['top', 'bottom', 'left', 'right']} style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView
+        ref={scrollRef}
+        contentContainerStyle={styles.content}
+        showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+        automaticallyAdjustKeyboardInsets
+      >
         <View style={[styles.artwork, { height: wide ? 440 : 365 }]}>
           {movie.posterUrl && (
             <Image
@@ -129,7 +140,12 @@ export default function MovieDetailsScreen() {
             )}
           </View>
         </View>
-        <View style={styles.body}>
+        <View
+          style={styles.body}
+          onLayout={(event) => {
+            bodyOffset.current = event.nativeEvent.layout.y;
+          }}
+        >
           <StatusNotices />
           {query.isError && (
             <InlineNotice
@@ -162,14 +178,23 @@ export default function MovieDetailsScreen() {
             ))}
           </View>
           <View style={styles.ratingRow}>
-            <View>
+            <View style={{ flex: 1 }}>
               <Rating value={movie.rating} large />
               <AppText style={styles.ratingSource}>
                 {ratingSource} community rating
                 {movie.ratingCount ? ` · ${movie.ratingCount.toLocaleString()} votes` : ''}
               </AppText>
             </View>
-            <Icon name="sparkles-outline" size={25} color={colors.accent} />
+            <IconButton
+              name="chatbubble-ellipses-outline"
+              label="Read and add comments"
+              onPress={() =>
+                scrollRef.current?.scrollTo({
+                  y: bodyOffset.current + commentsOffset.current - 20,
+                  animated: true,
+                })
+              }
+            />
           </View>
           <Button
             icon={saved ? 'bookmark' : 'bookmark-outline'}
@@ -215,6 +240,13 @@ export default function MovieDetailsScreen() {
                 View on {ratingSource}
               </Button>
             )}
+          </View>
+          <View
+            onLayout={(event) => {
+              commentsOffset.current = event.nativeEvent.layout.y;
+            }}
+          >
+            <MovieComments movieId={movie.id} />
           </View>
           <AppText style={styles.credit}>
             Film information and artwork via{' '}

@@ -29,13 +29,16 @@ export default function AboutScreen() {
         <View style={styles.divider} />
         <AppText style={styles.heading}>Your collection, your device.</AppText>
         <AppText style={styles.body}>
-          Favourites stay on this device. Previously loaded film information is cached for up to 24
-          hours, so you can keep exploring when your connection takes an intermission. Images are
-          cached separately and may need a connection the first time.
+          Favourites, watchlists, demo profiles, and comments stay on this device. Previously loaded
+          film information is cached for up to 24 hours, so you can keep exploring when your
+          connection takes an intermission. Images are cached separately and may need a connection
+          the first time.
         </AppText>
         <View style={styles.info}>
           <Icon name="cloud-done-outline" color={colors.accent} />
-          <AppText style={styles.infoText}>No account. No sign-in. Just films.</AppText>
+          <AppText style={styles.infoText}>
+            Browse freely. Use a local demo profile to add comments.
+          </AppText>
         </View>
         <AppText style={styles.heading}>A credit where it’s due.</AppText>
         <AppText style={styles.body}>{catalog.attribution}</AppText>

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
-import { useFavourites, useNetworkStatus, useWatchlist } from '../state';
+import { useCommunity, useFavourites, useNetworkStatus, useWatchlist } from '../state';
 import { AppText, Icon, IconButton, InlineNotice } from './ui';
 import { colors, fonts } from '../theme';
 
@@ -15,6 +15,7 @@ export function Brand({ compact = false }: { compact?: boolean }) {
   );
 }
 export function ScreenHeader({ search = false }: { search?: boolean }) {
+  const { profile } = useCommunity();
   return (
     <View style={styles.topbar}>
       <Brand />
@@ -27,9 +28,10 @@ export function ScreenHeader({ search = false }: { search?: boolean }) {
           />
         )}
         <IconButton
-          name="information-outline"
-          label="About Frame"
-          onPress={() => router.push('/about')}
+          name={profile ? 'person' : 'person-outline'}
+          label={profile ? 'Your profile' : 'Sign in'}
+          selected={Boolean(profile)}
+          onPress={() => router.push('/account')}
         />
       </View>
     </View>
@@ -39,6 +41,7 @@ export function StatusNotices() {
   const { isOnline } = useNetworkStatus();
   const { storageError, retrySave } = useFavourites();
   const watchlist = useWatchlist();
+  const community = useCommunity();
   return (
     <>
       {!isOnline && <InlineNotice message="You’re offline. We’ll reconnect automatically." />}
@@ -50,6 +53,14 @@ export function StatusNotices() {
           message={watchlist.storageError}
           action="Retry"
           onAction={watchlist.retrySave}
+          warning
+        />
+      )}
+      {community.storageError && (
+        <InlineNotice
+          message={community.storageError}
+          action="Retry"
+          onAction={community.retrySave}
           warning
         />
       )}

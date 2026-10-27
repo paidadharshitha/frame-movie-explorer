@@ -72,6 +72,7 @@ export default function RootLayout() {
             <Stack.Screen name="(tabs)" />
             <Stack.Screen name="movie/[id]" />
             <Stack.Screen name="about" />
+            <Stack.Screen name="account" />
           </Stack>
         </ThemeProvider>
       </AppProviders>
